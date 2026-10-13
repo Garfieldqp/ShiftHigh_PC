@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import * as productService from '../services/productService';
 import * as buildService from '../services/buildService';
 import * as cartService from '../services/cartService';
+import * as customerService from '../services/customerService';
 
 // หน้า "จัดสเปคคอม" ฝั่งลูกค้า - เลือกอะไหล่ทีละหมวดแล้วกดใส่ตะกร้าเป็นชุดเดียว
 async function buildProductsByCategory() {
@@ -20,7 +21,12 @@ export async function showBuildSelector(req: Request, res: Response) {
 
 export async function saveBuildToCart(req: Request, res: Response) {
   const customerId = req.customer!.customer_id;
-  const buildName = String(req.body.build_name || res.locals.t('สเปคคอมของฉัน')).trim();
+  // ถ้าลูกค้าไม่ได้ตั้งชื่อสเปค ใช้ชื่อลูกค้าเป็นชื่อสเปคแทน ช่างกับพนักงานจะได้รู้ทันทีว่าเป็นงานของใคร
+  let buildName = String(req.body.build_name || '').trim();
+  if (!buildName) {
+    const customer = await customerService.getCustomerById(customerId);
+    buildName = customer?.full_name || res.locals.t('สเปคคอมของฉัน');
+  }
 
   const categories = await productService.listBuildCategories();
   const items: { product_id: number; quantity: number }[] = [];

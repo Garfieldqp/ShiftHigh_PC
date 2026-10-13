@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
+import jwt from 'jsonwebtoken';
 import { verifyAccessToken, verifyRefreshToken, signAccessToken, parseExpiryToMs } from '../utils/jwt';
 import {
   CUSTOMER_ACCESS_COOKIE,
@@ -27,6 +28,21 @@ export async function currentUser(req: Request, res: Response, next: NextFunctio
     await resolveCustomer(req, res);
     // ดึง role ล่าสุดจากฐานข้อมูลเสมอ ไม่เชื่อ role ที่ฝังใน token เก่า - ให้ผล approve/เปลี่ยน role/ปิดบัญชี มีผลทันที
     await resolveEmployee(req, res);
+    // login ได้ทีละบัญชี: ถ้าเบราว์เซอร์ยังถือ cookie ของทั้งลูกค้าและพนักงาน (เช่น login ค้างไว้ตั้งแต่ก่อนแก้ระบบ)
+    // ให้เก็บบัญชีที่ login ล่าสุดไว้ แล้วออกจากระบบอีกบัญชี (ดูเวลา login จาก iat ของ refresh token)
+    if (req.customer && req.employee) {
+      const customerLoginAt = issuedAt(req.cookies?.[CUSTOMER_REFRESH_COOKIE]);
+      const employeeLoginAt = issuedAt(req.cookies?.[EMPLOYEE_REFRESH_COOKIE]);
+      if (employeeLoginAt >= customerLoginAt) {
+        res.clearCookie(CUSTOMER_ACCESS_COOKIE);
+        res.clearCookie(CUSTOMER_REFRESH_COOKIE);
+        req.customer = undefined;
+      } else {
+        res.clearCookie(EMPLOYEE_ACCESS_COOKIE);
+        res.clearCookie(EMPLOYEE_REFRESH_COOKIE);
+        req.employee = undefined;
+      }
+    }
   } catch (err) {
     // เช่น ต่อ MySQL ไม่ได้ - ส่งต่อให้ errorHandler แทนที่จะปล่อยให้ request ค้าง
     return next(err);
@@ -34,6 +50,13 @@ export async function currentUser(req: Request, res: Response, next: NextFunctio
   res.locals.customer = req.customer;
   res.locals.employee = req.employee;
   next();
+}
+
+/** เวลาที่ token ถูกออก (วินาที) อ่านจาก iat โดยไม่ต้อง verify - ไม่มีหรืออ่านไม่ได้คืน 0 */
+function issuedAt(token: string | undefined): number {
+  if (!token) return 0;
+  const decoded = jwt.decode(token);
+  return decoded && typeof decoded === 'object' && typeof decoded.iat === 'number' ? decoded.iat : 0;
 }
 
 /** verify token แบบไม่ throw - ถ้าไม่ถูกต้อง/หมดอายุคืน null */

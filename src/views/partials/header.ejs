@@ -11,7 +11,10 @@
     <nav class="hidden lg:contents text-sm">
       <div class="flex items-center gap-1 justify-self-center">
       <a href="/products" class="px-3 py-2 rounded-lg text-gray-300 hover:bg-white/10 hover:text-white transition-colors whitespace-nowrap"><%= t('สินค้า') %></a>
-      <a href="/build" class="px-3 py-2 rounded-lg text-gray-300 hover:bg-white/10 hover:text-white transition-colors whitespace-nowrap"><%= t('จัดสเปคคอม') %></a>
+      <% if (!employee) { %>
+        <%# จัดสเปคคอมเป็นของลูกค้าเท่านั้น (route มี customerAuthGuard) พนักงานกดแล้วจะไปหน้า login ลูกค้า จึงไม่โชว์ให้พนักงาน %>
+        <a href="/build" class="px-3 py-2 rounded-lg text-gray-300 hover:bg-white/10 hover:text-white transition-colors whitespace-nowrap"><%= t('จัดสเปคคอม') %></a>
+      <% } %>
 
       <% if (customer) { %>
         <a href="/cart" class="px-3 py-2 rounded-lg text-gray-300 hover:bg-white/10 hover:text-white transition-colors whitespace-nowrap"><%= t('ตะกร้า') %></a>
@@ -77,7 +80,9 @@
       <div class="fixed inset-0 top-16 z-40 bg-black/50" aria-hidden="true"></div>
       <nav class="absolute right-0 top-full mt-2 w-72 max-w-[85vw] bg-graphite rounded-xl border border-white/10 shadow-2xl z-50 p-2 max-h-[calc(100vh-5rem)] overflow-y-auto">
         <a href="/products" class="mobile-nav-link"><%= t('สินค้า') %></a>
-        <a href="/build" class="mobile-nav-link"><%= t('จัดสเปคคอม') %></a>
+        <% if (!employee) { %>
+          <a href="/build" class="mobile-nav-link"><%= t('จัดสเปคคอม') %></a>
+        <% } %>
 
         <% if (customer) { %>
           <a href="/cart" class="mobile-nav-link"><%= t('ตะกร้า') %></a>

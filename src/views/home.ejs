@@ -29,7 +29,9 @@
           <% } %>
         </p>
         <div class="mt-10 flex flex-wrap items-center gap-x-8 gap-y-4">
+          <% if (!employee) { %>
           <a href="/build" class="btn px-7 py-3 bg-white text-carbon hover:bg-brand-500 transition-colors"><%= t('เริ่มจัดสเปค') %></a>
+          <% } %>
           <a href="/products" class="text-sm tracking-wide text-gray-300 hover:text-white underline underline-offset-8 decoration-white/25 hover:decoration-brand-500 transition-colors"><%= t('ดูสินค้าทั้งหมด') %></a>
         </div>
       </div>
@@ -107,7 +109,9 @@
   <div class="grid lg:grid-cols-[1fr_2fr] gap-10 lg:gap-16">
     <div>
       <h2 class="font-display text-3xl sm:text-4xl font-light tracking-tight text-carbon"><%= t('สั่งประกอบคอมใน 4 ขั้น') %></h2>
+      <% if (!employee) { %>
       <a href="/build" class="btn-primary mt-8 px-7 py-3"><%= t('เริ่มจัดสเปค') %></a>
+      <% } %>
     </div>
     <%
       const steps = [
