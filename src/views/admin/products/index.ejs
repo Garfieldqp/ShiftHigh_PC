@@ -1,0 +1,91 @@
+<%# รายการสินค้าทั้งหมดฝั่ง admin (ค้นหา + ปิด/เปิดขาย + ลิงก์ไปเพิ่ม/แก้ไข) %>
+<%- include('../../partials/admin-nav', { currentNav: 'products' }) %>
+<div class="max-w-5xl mx-auto px-4 pb-16">
+  <div class="flex items-center justify-between mb-6 flex-wrap gap-3">
+    <h1 class="page-title"><%= t('จัดการสินค้า') %></h1>
+    <a href="/admin/products/new" class="btn-primary">
+      <svg class="w-4 h-4" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10 4v12M4 10h12" /></svg>
+      <%= t('เพิ่มสินค้า') %>
+    </a>
+  </div>
+
+  <div class="flex flex-col sm:flex-row gap-3 mb-8">
+    <div class="relative flex-1">
+      <svg class="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="9" r="6" /><path stroke-linecap="round" d="M17 17l-4-4" /></svg>
+      <input id="product-search" type="text" placeholder="<%= t('ค้นหาชื่อสินค้า...') %>" class="input pl-10" />
+    </div>
+    <select id="brand-filter" class="select sm:w-52">
+      <option value=""><%= t('ทุกแบรนด์') %></option>
+      <% brands.forEach(function(b) { %>
+        <option value="<%= b.brand_id %>"><%= b.brand_name %></option>
+      <% }); %>
+    </select>
+  </div>
+
+  <p id="no-result" class="empty-state py-10" hidden><span><%= t('ไม่พบสินค้าที่ค้นหา') %></span></p>
+
+  <% if (productsByCategory.length === 0) { %>
+    <div class="card empty-state py-10"><p><%= t('ยังไม่มีสินค้าในระบบ') %></p></div>
+  <% } else { %>
+    <% productsByCategory.forEach(function(group) { %>
+      <div class="product-category-group mb-8">
+        <h2 class="section-title mb-3"><%= t(group.category.category_name) %> <span class="text-gray-300 normal-case font-normal">(<%= group.products.length %>)</span></h2>
+        <div class="card divide-y divide-gray-100">
+          <% group.products.forEach(function(p) { %>
+            <div
+              class="product-row flex items-center justify-between p-4 sm:p-5 gap-3"
+              data-name="<%= p.product_name.toLowerCase() %>"
+              data-brand="<%= p.brand_id %>"
+            >
+              <div class="flex items-center gap-3 min-w-0">
+                <%- include('../../partials/product-thumb', { categoryName: group.category.category_name, imageUrl: p.image_url, size: 'sm', isBuild: false }) %>
+                <div class="min-w-0">
+                  <div class="font-medium text-gray-900 flex items-center gap-2">
+                    <%= p.product_name %>
+                    <% if (!p.is_active) { %><span class="badge-gray"><%= t('ซ่อนอยู่') %></span><% } %>
+                  </div>
+                  <div class="text-sm text-gray-500"><%= t(p.brand_name) %> · <%= p.price.toLocaleString() %> <%= t('บาท') %> · <%= lang === 'en' ? `${p.stock_quantity} left` : `เหลือ ${p.stock_quantity}` %></div>
+                </div>
+              </div>
+              <a href="/admin/products/<%= p.product_id %>/edit" class="btn-outline btn-sm shrink-0"><%= t('แก้ไข') %></a>
+            </div>
+          <% }); %>
+        </div>
+      </div>
+    <% }); %>
+  <% } %>
+</div>
+
+<script>
+  (function () {
+    const search = document.getElementById('product-search');
+    const brandFilter = document.getElementById('brand-filter');
+    const groups = [...document.querySelectorAll('.product-category-group')];
+    const noResult = document.getElementById('no-result');
+
+    function applyFilter() {
+      const q = search.value.trim().toLowerCase();
+      const brandId = brandFilter.value;
+      let anyVisible = false;
+
+      groups.forEach(function (group) {
+        const rows = [...group.querySelectorAll('.product-row')];
+        let groupHasMatch = false;
+        rows.forEach(function (row) {
+          const matchesName = !q || row.dataset.name.includes(q);
+          const matchesBrand = !brandId || row.dataset.brand === brandId;
+          const match = matchesName && matchesBrand;
+          row.hidden = !match;
+          if (match) groupHasMatch = true;
+        });
+        group.hidden = !groupHasMatch;
+        if (groupHasMatch) anyVisible = true;
+      });
+
+      noResult.hidden = anyVisible || groups.length === 0;
+    }
+
+    search.addEventListener('input', applyFilter);
+    brandFilter.addEventListener('change', applyFilter);
+  })();
+</script>

@@ -1,0 +1,140 @@
+<%# หน้าจัดการคำสั่งซื้อ+งานจัดสเปคคอมทั้งหมด (ฝั่ง staff/admin) - อัปเดตสถานะออเดอร์/สถานะจัดส่งได้ตรงนี้เลย %>
+<%- include('../partials/staff-nav', { currentNav: 'orders' }) %>
+<div class="max-w-5xl mx-auto px-4 pb-16">
+  <h1 class="page-title mb-8"><%= t('จัดการคำสั่งซื้อ') %></h1>
+
+  <h2 class="section-title mb-3"><%= t('คำสั่งซื้อสินค้า') %></h2>
+  <% if (orders.length === 0) { %>
+    <div class="card empty-state mb-10 py-10"><p><%= t('ยังไม่มีคำสั่งซื้อ') %></p></div>
+  <% } else { %>
+    <div class="card divide-y divide-gray-100 mb-10">
+      <% orders.forEach(function(o) { %>
+        <details class="group">
+          <summary class="grid grid-cols-1 lg:grid-cols-[1fr_auto] gap-4 items-center p-4 sm:p-5 cursor-pointer list-none hover:bg-gray-50 transition-colors">
+            <div class="flex items-center gap-2 min-w-0">
+              <svg class="w-4 h-4 text-gray-400 shrink-0 transition-transform group-open:rotate-90" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M7 5l5 5-5 5" /></svg>
+              <div class="min-w-0">
+                <div class="control-label mb-1"><%= t('หมายเลขคำสั่งซื้อ') %></div>
+                <div class="flex items-center gap-2 flex-wrap">
+                  <span class="id-tag">#<%= o.order_id %></span>
+                  <span class="text-sm text-gray-500 truncate"><%= t('ลูกค้า') %>: <span class="font-medium text-gray-900"><%= t(o.customer_name) %></span></span>
+                </div>
+                <div class="text-sm text-gray-500 mt-1"><%= new Date(o.order_date).toLocaleDateString(lang === 'en' ? 'en-GB' : 'th-TH') %> · <%= o.total_amount.toLocaleString() %> <%= t('บาท') %></div>
+              </div>
+            </div>
+
+            <div class="flex flex-col sm:flex-row items-stretch gap-3 sm:gap-4 mt-3 lg:mt-0" onclick="event.stopPropagation()">
+              <div class="status-slot">
+                <div class="control-label"><%= t('คำสั่งซื้อ') %></div>
+                <form method="POST" action="/staff/orders/<%= o.order_id %>/status" class="flex items-center gap-1.5">
+                  <select name="status" class="select-sm w-32">
+                    <option value="pending" <%= o.status === 'pending' ? 'selected' : '' %>><%= t('รอดำเนินการ') %></option>
+                    <option value="paid" <%= o.status === 'paid' ? 'selected' : '' %>><%= t('ชำระเงินแล้ว') %></option>
+                    <option value="cancelled" <%= o.status === 'cancelled' ? 'selected' : '' %>><%= t('ยกเลิก') %></option>
+                  </select>
+                  <button class="icon-btn" title="<%= t('อัปเดตสถานะคำสั่งซื้อ') %>" aria-label="<%= t('อัปเดตสถานะคำสั่งซื้อ') %>">
+                    <svg class="w-4 h-4" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 10l3 3 7-7" /></svg>
+                  </button>
+                </form>
+              </div>
+
+              <div class="hidden sm:block w-px bg-gray-100"></div>
+
+              <div class="status-slot">
+                <div class="control-label"><%= t('การจัดส่ง') %></div>
+                <form method="POST" action="/staff/orders/<%= o.order_id %>/shipping" class="flex items-center gap-1.5 <%= o.status !== 'paid' ? 'opacity-40 pointer-events-none' : '' %>">
+                  <select name="shipping_status" class="select-sm w-32" title="<%= o.status !== 'paid' ? t('รอชำระเงินก่อน') : '' %>" <%= o.status !== 'paid' ? 'disabled' : '' %>>
+                    <% if (o.status !== 'paid') { %>
+                      <option><%= t('รอชำระเงินก่อน') %></option>
+                    <% } else { %>
+                      <option value="preparing" <%= o.shipment && o.shipment.shipping_status === 'preparing' ? 'selected' : '' %>><%= t('เตรียมจัดส่ง') %></option>
+                      <option value="shipped" <%= o.shipment && o.shipment.shipping_status === 'shipped' ? 'selected' : '' %>><%= t('กำลังจัดส่ง') %></option>
+                      <option value="delivered" <%= o.shipment && o.shipment.shipping_status === 'delivered' ? 'selected' : '' %>><%= t('ถึงแล้ว') %></option>
+                    <% } %>
+                  </select>
+                  <button class="icon-btn" title="<%= t('อัปเดตสถานะจัดส่ง') %>" aria-label="<%= t('อัปเดตสถานะจัดส่ง') %>" <%= o.status !== 'paid' ? 'disabled' : '' %>>
+                    <svg class="w-4 h-4" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 10l3 3 7-7" /></svg>
+                  </button>
+                </form>
+              </div>
+            </div>
+          </summary>
+          <%- include('../partials/order-detail-panel', {
+            customerName: o.customer_name,
+            customerPhone: o.customer_phone,
+            shippingAddress: o.shipping_address,
+            itemsLabel: t('รายการสินค้า'),
+            items: o.items,
+            history: o.history,
+          }) %>
+        </details>
+      <% }); %>
+    </div>
+  <% } %>
+
+  <h2 class="section-title mb-3"><%= t('งานจัดสเปคคอม') %></h2>
+  <% if (builds.length === 0) { %>
+    <div class="card empty-state py-10"><p><%= t('ยังไม่มีงานจัดสเปคคอมที่จ่ายเงินแล้ว') %></p></div>
+  <% } else { %>
+    <div class="card divide-y divide-gray-100">
+      <% builds.forEach(function(b) { %>
+        <% var canShip = (b.status === 'completed' || b.status === 'shipped'); %>
+        <details class="group">
+          <summary class="grid grid-cols-1 lg:grid-cols-[1fr_auto] gap-4 items-center p-4 sm:p-5 cursor-pointer list-none hover:bg-gray-50 transition-colors">
+            <div class="flex items-center gap-2 min-w-0">
+              <svg class="w-4 h-4 text-gray-400 shrink-0 transition-transform group-open:rotate-90" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M7 5l5 5-5 5" /></svg>
+              <div class="min-w-0">
+                <div class="control-label mb-1"><%= t('ชื่อชุดจัดสเปค') %></div>
+                <div class="flex items-center gap-2 flex-wrap">
+                  <span class="id-tag">#<%= b.build_id %></span>
+                  <span class="font-medium text-gray-900 truncate"><%= b.build_name %></span>
+                </div>
+                <div class="text-sm text-gray-500 flex items-center gap-1 mt-1">
+                  <svg class="w-3.5 h-3.5 text-gray-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="4" /><path stroke-linecap="round" d="M4 20c0-4 4-6 8-6s8 2 8 6" /></svg>
+                  <span class="truncate"><%= t('ลูกค้า') %>: <%= t(b.customer_name) %></span>
+                </div>
+                <div class="text-sm text-gray-500 mt-0.5"><%= new Date(b.build_date).toLocaleDateString(lang === 'en' ? 'en-GB' : 'th-TH') %> · <%= b.total_price.toLocaleString() %> <%= t('บาท') %></div>
+              </div>
+            </div>
+
+            <div class="flex flex-col sm:flex-row items-stretch gap-3 sm:gap-4 mt-3 lg:mt-0" onclick="event.stopPropagation()">
+              <div class="status-slot flex flex-col justify-center">
+                <div class="control-label"><%= t('สถานะประกอบ') %></div>
+                <div class="h-9 flex items-center"><span class="<%= statusColor(b.status) %>"><%= t(statusLabel(b.status)) %></span></div>
+              </div>
+
+              <div class="hidden sm:block w-px bg-gray-100"></div>
+
+              <div class="status-slot">
+                <div class="control-label"><%= t('การจัดส่ง') %></div>
+                <!-- ช่างต้องประกอบเสร็จ (completed) ก่อน ถึงจะอัปเดตสถานะจัดส่งต่อได้ -->
+                <form method="POST" action="/staff/builds/<%= b.build_id %>/status" class="flex items-center gap-1.5 <%= !canShip ? 'opacity-40 pointer-events-none' : '' %>">
+                  <% var canShipPlaceholder = b.status === 'delivered' ? t('จัดส่งถึงแล้ว') : b.status === 'cancelled' ? t('งานถูกยกเลิก') : t('รอช่างประกอบเสร็จ'); %>
+                  <select name="status" class="select-sm w-32" title="<%= !canShip ? canShipPlaceholder : '' %>" <%= !canShip ? 'disabled' : '' %>>
+                    <% if (!canShip) { %>
+                      <option><%= canShipPlaceholder %></option>
+                    <% } else { %>
+                      <option value="shipped" <%= b.status === 'shipped' ? 'selected' : '' %>><%= t('กำลังจัดส่ง') %></option>
+                      <option value="delivered"><%= t('ถึงแล้ว') %></option>
+                    <% } %>
+                  </select>
+                  <button class="icon-btn" title="<%= t('อัปเดตสถานะจัดส่ง') %>" aria-label="<%= t('อัปเดตสถานะจัดส่ง') %>" <%= !canShip ? 'disabled' : '' %>>
+                    <svg class="w-4 h-4" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 10l3 3 7-7" /></svg>
+                  </button>
+                </form>
+              </div>
+            </div>
+          </summary>
+          <%- include('../partials/order-detail-panel', {
+            customerName: b.customer_name,
+            customerPhone: b.customer_phone,
+            shippingAddress: b.shipping_address || t('ยังไม่มีข้อมูล (งานนี้ยังไม่ได้ checkout สมบูรณ์)'),
+            itemsLabel: t('รายการอะไหล่'),
+            items: b.items,
+            history: b.history,
+          }) %>
+        </details>
+      <% }); %>
+    </div>
+  <% } %>
+</div>

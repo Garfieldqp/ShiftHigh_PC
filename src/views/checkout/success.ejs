@@ -1,0 +1,41 @@
+<%# หน้าสรุปหลัง checkout สำเร็จ - ใช้เฉพาะตอนตะกร้ามีมากกว่า 1 อย่าง (ผสมสินค้าปกติ+จัดสเปคคอม) เพื่อโชว์ลิงก์ไปทุกอย่างที่เพิ่งสั่งซื้อ %>
+<div class="max-w-lg mx-auto px-4 py-16">
+  <div class="card p-8">
+    <div class="text-center mb-6">
+      <div class="h-14 w-14 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto mb-4">
+        <svg class="w-7 h-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg>
+      </div>
+      <h1 class="text-2xl font-bold mb-1"><%= t('สั่งซื้อสำเร็จ') %></h1>
+      <p class="text-gray-500 text-sm"><%= t('ขอบคุณที่ใช้บริการ') %> Shift-High PC</p>
+    </div>
+
+    <!-- ตะกร้าผสม (สินค้าปกติ + ชุดจัดสเปคคอม) แยกเป็นคนละรายการในระบบ (SalesOrder / PCBuild คนละ entity)
+         หน้านี้เลยต้องรวมลิงก์ไปหาทุกอย่างที่เพิ่งจ่ายเงินไปให้ครบ ไม่ให้อันไหนหายไปจากสายตาลูกค้า -->
+    <p class="text-sm text-gray-500 text-center mb-6"><%= t('ตะกร้าของคุณมีมากกว่า 1 รายการ ระบบแยกเป็นคำสั่งซื้อดังนี้') %></p>
+
+    <div class="space-y-3 mb-6">
+      <% if (order) { %>
+        <a href="/orders/<%= order.order_id %>" class="flex items-center justify-between gap-3 p-4 rounded-xl border border-gray-100 hover:border-brand-200 hover:bg-brand-50/40 transition-colors">
+          <div class="min-w-0">
+            <div class="control-label mb-1"><%= t('คำสั่งซื้อสินค้า') %></div>
+            <div class="font-medium text-gray-900">#<%= order.order_id %></div>
+            <div class="text-sm text-gray-500"><%= order.total_amount.toLocaleString() %> <%= t('บาท') %></div>
+          </div>
+          <svg class="w-5 h-5 text-gray-300 shrink-0" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M7 5l5 5-5 5" /></svg>
+        </a>
+      <% } %>
+      <% builds.forEach(function(build) { %>
+        <a href="/build/<%= build.build_id %>/status" class="flex items-center justify-between gap-3 p-4 rounded-xl border border-gray-100 hover:border-brand-200 hover:bg-brand-50/40 transition-colors">
+          <div class="min-w-0">
+            <div class="control-label mb-1"><%= t('ชุดจัดสเปค') %></div>
+            <div class="font-medium text-gray-900 truncate"><%= build.build_name %></div>
+            <div class="text-sm text-gray-500"><%= build.total_price.toLocaleString() %> <%= t('บาท') %></div>
+          </div>
+          <svg class="w-5 h-5 text-gray-300 shrink-0" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M7 5l5 5-5 5" /></svg>
+        </a>
+      <% }); %>
+    </div>
+
+    <a href="/orders" class="btn-outline w-full"><%= t('ดูประวัติคำสั่งซื้อทั้งหมด') %></a>
+  </div>
+</div>

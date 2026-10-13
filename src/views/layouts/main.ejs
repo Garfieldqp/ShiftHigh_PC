@@ -1,0 +1,26 @@
+<%# โครงหน้าหลักที่ทุกหน้าใช้ร่วมกัน (header + เนื้อหาแต่ละหน้า + footer) - express-ejs-layouts เอาเนื้อหาของแต่ละหน้ามาแทรกตรงตัวแปร body ด้านล่าง %>
+<!DOCTYPE html>
+<html lang="<%= lang %>">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title><%= typeof title !== 'undefined' ? t(title) + ' | Shift-High PC' : 'Shift-High PC' %></title>
+  <link rel="icon" href="/images/logo.jpg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bai+Jamjuree:wght@300;400;500;600&family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/tailwind.css" />
+</head>
+<body
+  class="min-h-screen flex flex-col bg-bone font-sans text-gray-900 antialiased"
+  <% if (typeof errorField !== 'undefined' && errorField) { %>data-error-field="<%= errorField %>"<% } %>
+>
+  <%- include('../partials/header') %>
+  <main class="flex-1">
+    <%- body %>
+  </main>
+  <%- include('../partials/footer') %>
+  <script src="/js/phone-input.js" defer></script>
+  <script src="/js/error-focus.js" defer></script>
+</body>
+</html>

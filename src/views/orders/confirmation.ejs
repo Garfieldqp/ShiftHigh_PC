@@ -1,0 +1,57 @@
+<%# หน้ายืนยัน/รายละเอียดคำสั่งซื้อ 1 ใบ - โชว์สถานะ + timeline ประวัติ %>
+<div class="max-w-lg mx-auto px-4 py-16">
+  <% if (!order) { %>
+    <div class="empty-state"><p><%= t('ไม่พบคำสั่งซื้อนี้') %></p></div>
+  <% } else { %>
+    <div class="card p-8">
+      <div class="text-center mb-6">
+        <div class="h-14 w-14 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto mb-4">
+          <svg class="w-7 h-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg>
+        </div>
+        <h1 class="text-2xl font-bold mb-1"><%= t('สั่งซื้อสำเร็จ') %></h1>
+        <p class="text-gray-500 text-sm mb-3"><%= t('ขอบคุณที่ใช้บริการ') %> Shift-High PC</p>
+        <div class="flex flex-col items-center gap-1 mb-1">
+          <span class="control-label"><%= t('หมายเลขคำสั่งซื้อ') %></span>
+          <span class="id-tag">#<%= order.order_id %></span>
+        </div>
+        <div class="flex justify-center gap-1.5 mt-2">
+          <span class="<%= statusColor(order.status) %>"><%= t(statusLabel(order.status)) %></span>
+          <% if (order.shipping_status) { %>
+            <span class="<%= statusColor(order.shipping_status) %>"><%= t(statusLabel(order.shipping_status)) %></span>
+          <% } %>
+        </div>
+      </div>
+
+      <div class="border border-gray-100 rounded-xl divide-y divide-gray-100 mb-4">
+        <% items.forEach(function(item) { %>
+          <div class="flex items-center justify-between px-4 py-2.5 text-sm">
+            <span class="text-gray-700"><%= item.product_name %> × <%= item.quantity %></span>
+            <span class="font-medium"><%= (item.unit_price * item.quantity).toLocaleString() %> <%= t('บาท') %></span>
+          </div>
+        <% }); %>
+      </div>
+      <div class="text-right font-bold text-brand-600 text-lg mb-6"><%= order.total_amount.toLocaleString() %> <%= t('บาท') %></div>
+      <p class="text-sm text-gray-500 mb-2"><span class="font-medium text-gray-700"><%= t('จัดส่งไปที่') %>:</span> <%= order.shipping_address %></p>
+      <% if (paymentMethod) { %>
+        <p class="text-sm text-gray-500 mb-6"><span class="font-medium text-gray-700"><%= t('วิธีชำระเงิน') %>:</span> <%= t(statusLabel(paymentMethod)) %></p>
+      <% } %>
+
+      <% if (history.length > 0) { %>
+        <h2 class="section-title mb-3"><%= t('ประวัติสถานะ') %></h2>
+        <div class="card p-5 mb-6 bg-gray-50">
+          <ol class="relative border-l-2 border-brand-100 pl-5 space-y-5">
+            <% history.forEach(function(h) { %>
+              <li class="relative">
+                <span class="absolute -left-[1.65rem] top-1 h-3 w-3 rounded-full bg-brand-500 ring-4 ring-brand-50"></span>
+                <div class="font-medium text-gray-900"><%= t(statusLabel(h.status)) %></div>
+                <div class="text-xs text-gray-400"><%= new Date(h.timestamp).toLocaleString(lang === 'en' ? 'en-GB' : 'th-TH') %></div>
+              </li>
+            <% }); %>
+          </ol>
+        </div>
+      <% } %>
+
+      <a href="/orders" class="btn-outline w-full"><%= t('ดูประวัติคำสั่งซื้อทั้งหมด') %></a>
+    </div>
+  <% } %>
+</div>

@@ -1,0 +1,165 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  /* หัวข้อทุกระดับใช้ฟอนต์เหลี่ยม Chakra Petch (ดู fontFamily.display ใน tailwind.config.js) */
+  h1,
+  h2,
+  h3 {
+    @apply font-display tracking-tight;
+  }
+  :focus-visible {
+    @apply outline-none ring-2 ring-brand-500 ring-offset-2;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-delay: 0ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+  /* เวลาสลับ el.hidden ด้วย JS บนอิลิเมนต์ที่มี class flex/grid อยู่แล้ว (เช่น แถวสินค้าที่ค้นหาไม่เจอ)
+     ต้องบังคับให้ [hidden] ชนะเสมอ ไม่งั้น .flex จะทับ display:none จนซ่อนไม่ได้จริง */
+  [hidden] {
+    display: none !important;
+  }
+}
+
+@layer components {
+  /* ----- ปุ่ม ----- */
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-full px-5 py-2.5 text-sm font-medium tracking-wide
+      transition-colors duration-150 disabled:opacity-40 disabled:pointer-events-none;
+  }
+  .btn-primary {
+    /* ปุ่มหลักสีดำ ตัวหนังสือขาว (ส้มเก็บไว้ใช้เป็นแสง/จุดเน้นเล็กๆ ให้ดูเรียบหรู) */
+    @apply btn bg-carbon text-white hover:bg-neutral-800 active:bg-neutral-700;
+  }
+  .btn-outline {
+    @apply btn border border-neutral-300 text-carbon bg-white hover:border-carbon;
+  }
+  .btn-ghost {
+    @apply btn text-gray-600 hover:bg-gray-100;
+  }
+  .btn-danger {
+    @apply btn text-red-600 hover:bg-red-50;
+  }
+  .btn-sm {
+    @apply px-3 py-1.5 text-xs;
+  }
+  .icon-btn {
+    @apply inline-flex items-center justify-center h-9 w-9 shrink-0 rounded-md border border-gray-200 text-gray-400
+      hover:border-brand-300 hover:text-brand-600 hover:bg-brand-50 transition-colors;
+  }
+  /* ปุ่ม +/- ปรับจำนวนในตะกร้า - เล็กกว่า icon-btn เพราะอยู่ติดกันเป็นกลุ่ม stepper */
+  .qty-btn {
+    @apply inline-flex items-center justify-center h-7 w-7 shrink-0 rounded-md border border-gray-200 text-gray-500 text-sm font-medium
+      hover:border-brand-300 hover:text-brand-600 hover:bg-brand-50 transition-colors
+      disabled:opacity-30 disabled:pointer-events-none;
+  }
+  /* การ์ดเลือกวิธีชำระเงิน (ใช้คู่กับ radio input class="sr-only peer" ก่อนหน้ามันใน DOM เดียวกัน) */
+  .payment-option-box {
+    @apply flex items-center gap-2.5 rounded-xl border-2 border-gray-200 p-3.5 text-sm text-gray-600 cursor-pointer transition-colors
+      hover:border-gray-300
+      peer-checked:border-brand-500 peer-checked:bg-brand-50 peer-checked:text-brand-700 peer-checked:font-medium
+      peer-focus-visible:ring-4 peer-focus-visible:ring-brand-100;
+  }
+  /* ลิงก์แถวในเมนูมือถือ (แผงที่กดแฮมเบอร์เกอร์แล้วเปิดออกมา) - บล็อกเต็มความกว้าง แตะง่ายบนจอสัมผัส */
+  .mobile-nav-link {
+    @apply block px-3 py-2.5 rounded-md text-sm text-gray-200 hover:bg-white/10 hover:text-white transition-colors;
+  }
+
+  /* ----- ป้ายกำกับกลุ่มควบคุมสถานะ (เช่นในตาราง staff) ----- */
+  .control-label {
+    @apply text-xs font-semibold text-gray-500 mb-1;
+  }
+  /* ความกว้างคงที่ของแต่ละ "ช่อง" สถานะ (select w-32 + gap + icon-btn w-9)
+     ต้องเท่ากันทุกแถวเป๊ะ ไม่ว่าข้างในจะเป็นฟอร์มจริงหรือข้อความอธิบายเฉยๆ
+     ไม่งั้นเส้นแบ่งคอลัมน์จะเหลื่อมกันเพราะแต่ละแถวเป็นกริดแยกอิสระจากกัน */
+  .status-slot {
+    @apply w-[170px] shrink-0;
+  }
+
+  /* ----- ลิงก์ ----- */
+  .link {
+    @apply text-brand-700 hover:text-brand-800 underline underline-offset-2 decoration-brand-300 hover:decoration-brand-600;
+  }
+
+  /* ----- ฟอร์ม ----- */
+  .field-label {
+    @apply block text-sm font-medium text-gray-700 mb-1.5;
+  }
+  .input {
+    @apply w-full rounded-md border border-gray-300 bg-white px-3.5 py-2.5 text-sm text-gray-900
+      placeholder-gray-400 shadow-sm transition
+      focus:border-brand-500 focus:outline-none focus:ring-4 focus:ring-brand-100;
+  }
+  .select {
+    @apply input pr-8;
+  }
+  /* ใส่คู่กับ .input เมื่อ field นั้นเป็นตัวที่กรอกผิด (ต่อจาก .input เสมอ ให้สีนี้ทับ border/ring เดิม) */
+  .input-error {
+    @apply border-red-400 ring-4 ring-red-100;
+  }
+  .input-sm {
+    @apply rounded-md border border-gray-300 bg-white px-2.5 py-1.5 text-sm shadow-sm transition
+      focus:border-brand-500 focus:outline-none focus:ring-4 focus:ring-brand-100;
+  }
+  .select-sm {
+    @apply input-sm pr-7 truncate;
+  }
+
+  /* ----- การ์ด/คอนเทนเนอร์ ----- */
+  .card {
+    @apply rounded-2xl border border-black/[0.06] bg-white shadow-card;
+  }
+  .page-title {
+    @apply font-display text-3xl sm:text-4xl font-normal tracking-tight text-carbon;
+  }
+  .section-title {
+    @apply font-display text-base font-medium text-gray-800;
+  }
+
+  /* ----- badge สถานะ ----- */
+  .badge {
+    @apply inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium whitespace-nowrap;
+  }
+  .badge-gray {
+    @apply badge bg-gray-100 text-gray-600;
+  }
+  .badge-green {
+    @apply badge bg-emerald-100 text-emerald-700;
+  }
+  .badge-brand {
+    @apply badge bg-brand-100 text-brand-700;
+  }
+  .badge-amber {
+    @apply badge bg-amber-100 text-amber-700;
+  }
+  .badge-red {
+    @apply badge bg-red-100 text-red-700;
+  }
+
+  /* ----- ป้ายเลขอ้างอิง (order/build id) -----
+     ตั้งใจให้หน้าตาต่างจาก badge สถานะข้างบน (สี่เหลี่ยมมุมโค้งเล็กน้อย ไม่ใช่ pill, ตัวเลขแบบ monospace)
+     กันสับสนว่า "#1" เป็นสถานะ ทั้งที่จริงๆ เป็นแค่เลขอ้างอิง แยกให้ชัดจากชื่อลูกค้าที่อยู่ข้างๆ */
+  .id-tag {
+    @apply inline-flex items-center shrink-0 rounded-md bg-gray-100 px-1.5 py-0.5 font-mono text-xs font-semibold text-gray-500;
+  }
+
+  /* ----- แจ้งเตือน ----- */
+  .alert-error {
+    @apply rounded-lg bg-red-50 border-l-4 border-red-500 text-red-800 text-sm px-4 py-3;
+  }
+  .alert-info {
+    @apply rounded-lg bg-brand-50 border-l-4 border-brand-500 text-brand-900 text-sm px-4 py-3;
+  }
+
+  /* ----- empty state ----- */
+  .empty-state {
+    @apply flex flex-col items-center justify-center text-center py-16 text-gray-400;
+  }
+}

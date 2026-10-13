@@ -1,0 +1,76 @@
+<%# ส่วนย่อยแสดงรายละเอียดออเดอร์/งานจัดสเปค 1 รายการ (ใช้ซ้ำในหน้า staff/orders.ejs ทั้งฝั่งออเดอร์และฝั่งงานจัดสเปค) %>
+<%
+/**
+ * แผงรายละเอียดที่ขยายออกมาเวลากดเปิด order/build แต่ละแถว (ใช้ร่วมกันทั้งฝั่ง staff และลูกค้า)
+ * ตั้งใจแยกแต่ละหัวข้อเป็นการ์ดของตัวเอง (ไม่ใช่ข้อความไหลรวมกันเป็นก้อนเดียว) และให้พื้นหลังคนละโทนกับแถวสรุปด้านบน
+ * เพื่อให้เห็นชัดว่ากำลังดู "รายละเอียดที่ขยายออกมา" อยู่ ไม่ใช่ส่วนหนึ่งของหัวข้อเดิม
+ *
+ * locals ที่ใช้:
+ *   customerName: string|undefined   - ไม่ต้องส่งถ้าเป็นหน้าที่ลูกค้าดูออเดอร์ของตัวเอง (รู้อยู่แล้วว่าเป็นใคร ไม่ต้องบอกซ้ำ)
+ *   customerPhone: string|undefined
+ *   shippingAddress: string
+ *   itemsLabel: string   - หัวข้อรายการ (เช่น "รายการสินค้า" หรือ "รายการอะไหล่")
+ *   items: { product_name, quantity, unit_price }[]
+ *   history: { status, timestamp, note? }[] | undefined
+ */
+%>
+<div class="p-4 sm:p-5 bg-brand-50/60 border-t-2 border-gray-200 space-y-3">
+  <div class="card p-4">
+    <% if (typeof customerName !== 'undefined') { %>
+      <div class="flex items-center gap-1.5 text-sm font-semibold text-gray-800 mb-3">
+        <svg class="w-4 h-4 text-brand-500 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="4" /><path stroke-linecap="round" d="M4 20c0-4 4-6 8-6s8 2 8 6" /></svg>
+        <%= t('ลูกค้าและที่อยู่จัดส่ง') %>
+      </div>
+      <div class="grid sm:grid-cols-2 gap-3.5 text-sm">
+        <div>
+          <div class="control-label mb-1"><%= t('ลูกค้า') %></div>
+          <div class="text-gray-700"><%= t(customerName) %><% if (customerPhone) { %> · <%= formatPhone(customerPhone) %><% } %></div>
+        </div>
+        <div>
+          <div class="control-label mb-1"><%= t('ที่อยู่จัดส่ง') %></div>
+          <div class="text-gray-700"><%= shippingAddress %></div>
+        </div>
+      </div>
+    <% } else { %>
+      <div class="flex items-center gap-1.5 text-sm font-semibold text-gray-800 mb-3">
+        <svg class="w-4 h-4 text-brand-500 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 5.25-7.5 10.5-7.5 10.5S4.5 15.75 4.5 10.5a7.5 7.5 0 1115 0z" /></svg>
+        <%= t('ที่อยู่จัดส่ง') %>
+      </div>
+      <div class="text-sm text-gray-700"><%= shippingAddress %></div>
+    <% } %>
+  </div>
+
+  <div class="card p-4">
+    <div class="flex items-center gap-1.5 text-sm font-semibold text-gray-800 mb-3">
+      <svg class="w-4 h-4 text-brand-500 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h10" /></svg>
+      <%= itemsLabel %>
+    </div>
+    <div class="divide-y divide-gray-100 text-sm">
+      <% items.forEach(function(item) { %>
+        <div class="flex items-center justify-between py-2.5">
+          <span class="text-gray-700"><%= item.product_name %> × <%= item.quantity %></span>
+          <span class="font-medium text-gray-900"><%= (item.unit_price * item.quantity).toLocaleString() %> <%= t('บาท') %></span>
+        </div>
+      <% }); %>
+    </div>
+  </div>
+
+  <% if (typeof history !== 'undefined' && history.length > 0) { %>
+    <div class="card p-4">
+      <div class="flex items-center gap-1.5 text-sm font-semibold text-gray-800 mb-3">
+        <svg class="w-4 h-4 text-brand-500 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9" /><path stroke-linecap="round" stroke-linejoin="round" d="M12 7v5l3 3" /></svg>
+        <%= t('ประวัติสถานะ') %>
+      </div>
+      <ol class="relative border-l-2 border-brand-100 pl-4 space-y-4 text-sm">
+        <% history.forEach(function(h) { %>
+          <li class="relative">
+            <span class="absolute -left-[1.4rem] top-1 h-2.5 w-2.5 rounded-full bg-brand-500 ring-4 ring-white"></span>
+            <div class="font-medium text-gray-900"><%= t(statusLabel(h.status)) %></div>
+            <div class="text-xs text-gray-400"><%= new Date(h.timestamp).toLocaleString(lang === 'en' ? 'en-GB' : 'th-TH') %></div>
+            <% if (h.note) { %><div class="text-gray-500 mt-0.5"><%= t(h.note) %></div><% } %>
+          </li>
+        <% }); %>
+      </ol>
+    </div>
+  <% } %>
+</div>

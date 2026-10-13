@@ -1,0 +1,62 @@
+<%# รูปย่อสินค้าที่ใช้ซ้ำได้ทุกหน้า - มีรูปจริงก็โชว์รูป ไม่มีก็โชว์ไอคอนตามหมวดหมู่แทน %>
+<%
+/**
+ * รูปย่อสินค้าที่ใช้ร่วมกันทุกหน้า (สินค้า, ตะกร้า, เช็คเอาต์, คำสั่งซื้อ, จัดสเปค, จัดการสต็อก ฯลฯ)
+ * ถ้าสินค้ามี image_url จริงจะโชว์รูปนั้น ถ้าไม่มีจะโชว์ไอคอนตามหมวดหมู่แทน (แต่ละหมวดสีไม่ซ้ำกัน ดูออกง่ายว่าเป็นของประเภทไหน)
+ *
+ * locals ที่ใช้:
+ *   categoryName: string|undefined  - ชื่อหมวดหมู่ (ไม่ต้องส่งถ้า isBuild = true)
+ *   imageUrl: string|undefined      - path รูปจริง ถ้ามี
+ *   size: 'sm' | 'md' | 'lg' | 'xl' - ขนาดกล่อง (ค่าเริ่มต้น 'md') - 'xl' ใช้เฉพาะหน้ารายละเอียดสินค้า (กล่องใหญ่กว่า 'lg' ที่การ์ดในหน้ารายการใช้)
+ *   isBuild: boolean                - true ถ้าเป็นชุดจัดสเปคคอม (ใช้ไอคอนกล่องแทน)
+ *   rounded: string                 - class ความโค้งขอบ (ค่าเริ่มต้น 'rounded-lg')
+ *   showLabel: boolean              - true = โชว์ชื่อหมวดหมู่ใต้ไอคอนด้วย (เฉพาะตอนไม่มีรูปจริง) กันไม่ให้กล่องว่างดูเหมือนโหลดรูปไม่ขึ้น (ใช้กับ 'xl' เท่านั้น ไม่กระทบการ์ดหน้ารายการ)
+ */
+const SIZE_CLASSES = { sm: 'w-12 h-12', md: 'w-16 h-16', lg: 'w-full aspect-square', xl: 'w-full aspect-square' };
+const ICON_SIZE_CLASSES = { sm: 'w-5 h-5', md: 'w-7 h-7', lg: 'w-10 h-10', xl: 'w-20 h-20' };
+const boxSize = SIZE_CLASSES[typeof size !== 'undefined' ? size : 'md'] || SIZE_CLASSES.md;
+const iconSize = ICON_SIZE_CLASSES[typeof size !== 'undefined' ? size : 'md'] || ICON_SIZE_CLASSES.md;
+const roundedClass = typeof rounded !== 'undefined' ? rounded : 'rounded-lg';
+const useImage = typeof imageUrl !== 'undefined' && imageUrl;
+const shouldShowLabel = typeof showLabel !== 'undefined' && showLabel && !useImage;
+
+const CATEGORY_STYLE = {
+  'CPU': { bg: 'bg-blue-50', fg: 'text-blue-500' },
+  'เมนบอร์ด': { bg: 'bg-indigo-50', fg: 'text-indigo-500' },
+  'การ์ดจอ': { bg: 'bg-purple-50', fg: 'text-purple-500' },
+  'แรม': { bg: 'bg-green-50', fg: 'text-green-500' },
+  'SSD/HDD': { bg: 'bg-amber-50', fg: 'text-amber-500' },
+  'พาวเวอร์ซัพพลาย': { bg: 'bg-rose-50', fg: 'text-rose-500' },
+  'เคส': { bg: 'bg-slate-50', fg: 'text-slate-500' },
+  'อุปกรณ์เสริม': { bg: 'bg-teal-50', fg: 'text-teal-500' },
+};
+const BUILD_STYLE = { bg: 'bg-brand-50', fg: 'text-brand-600' };
+const DEFAULT_STYLE = { bg: 'bg-gray-50', fg: 'text-gray-300' };
+
+const style = isBuild ? BUILD_STYLE : (CATEGORY_STYLE[categoryName] || DEFAULT_STYLE);
+
+const ICON_PATHS = {
+  'CPU': '<rect x="7" y="7" width="10" height="10" rx="1"/><rect x="10" y="10" width="4" height="4" fill="currentColor" stroke="none"/><path d="M9 3v3M12 3v3M15 3v3M9 18v3M12 18v3M15 18v3M3 9h3M3 12h3M3 15h3M18 9h3M18 12h3M18 15h3"/>',
+  'เมนบอร์ด': '<rect x="3" y="3" width="18" height="18" rx="2"/><rect x="6" y="6" width="5" height="5"/><circle cx="17" cy="7.5" r="1.5" fill="currentColor" stroke="none"/><path d="M6 14h5M6 17h8M14 6v5"/>',
+  'การ์ดจอ': '<rect x="2" y="7" width="20" height="9" rx="1.5"/><circle cx="8" cy="11.5" r="2.2"/><circle cx="14" cy="11.5" r="2.2"/><path d="M18 7V4M4 16v2h4v-2"/>',
+  'แรม': '<rect x="3.5" y="4" width="3.5" height="16" rx="0.5"/><rect x="10.25" y="4" width="3.5" height="16" rx="0.5"/><rect x="17" y="4" width="3.5" height="16" rx="0.5"/>',
+  'SSD/HDD': '<rect x="4" y="6" width="16" height="12" rx="1.5"/><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="0.7" fill="currentColor" stroke="none"/>',
+  'พาวเวอร์ซัพพลาย': '<rect x="4" y="5" width="16" height="14" rx="1.5"/><circle cx="12" cy="12" r="3.5"/><path d="M9 12h6M12 9v6"/>',
+  'เคส': '<rect x="7" y="2.5" width="10" height="19" rx="1.5"/><circle cx="12" cy="6" r="0.9" fill="currentColor" stroke="none"/><path d="M9.5 10h5M9.5 13h5M9.5 16h5"/>',
+  'อุปกรณ์เสริม': '<rect x="3" y="6" width="18" height="12" rx="2"/><path d="M7 10h.01M10.5 10h.01M14 10h.01M17 10h.01M7.5 14h9"/>',
+};
+const BUILD_ICON = '<path d="M3 8l9-5 9 5-9 5-9-5z"/><path d="M3 8v8l9 5 9-5V8"/><path d="M12 13v8"/>';
+const DEFAULT_ICON = '<rect x="3" y="4" width="18" height="14" rx="2"/><path stroke-linecap="round" d="M8 20h8"/>';
+
+const iconMarkup = isBuild ? BUILD_ICON : (ICON_PATHS[categoryName] || DEFAULT_ICON);
+%>
+<div class="<%= boxSize %> <%= roundedClass %> <%= useImage ? 'bg-gray-50' : style.bg %> flex flex-col items-center justify-center gap-3 overflow-hidden shrink-0">
+  <% if (useImage) { %>
+    <img src="<%= imageUrl %>" alt="" class="w-full h-full object-cover" />
+  <% } else { %>
+    <svg class="<%= iconSize %> <%= style.fg %>" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><%- iconMarkup %></svg>
+    <% if (shouldShowLabel) { %>
+      <span class="text-sm font-medium <%= style.fg %>"><%= isBuild ? t('ชุดจัดสเปค') : t(categoryName || '') %></span>
+    <% } %>
+  <% } %>
+</div>

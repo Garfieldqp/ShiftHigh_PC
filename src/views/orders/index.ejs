@@ -1,0 +1,67 @@
+<%# หน้าประวัติคำสั่งซื้อทั้งหมดของลูกค้าคนนั้น %>
+<div class="max-w-4xl mx-auto px-4 py-10">
+  <h1 class="page-title mb-8"><%= t('ประวัติคำสั่งซื้อของฉัน') %></h1>
+
+  <h2 class="section-title mb-3"><%= t('คำสั่งซื้อสินค้า') %></h2>
+  <% if (orders.length === 0) { %>
+    <div class="card empty-state mb-10 py-10">
+      <p><%= t('ยังไม่มีคำสั่งซื้อ') %></p>
+    </div>
+  <% } else { %>
+    <div class="card divide-y divide-gray-100 mb-10">
+      <% orders.forEach(function(o) { %>
+        <details class="group">
+          <summary class="flex items-center justify-between gap-3 p-4 sm:p-5 cursor-pointer list-none hover:bg-gray-50 transition-colors">
+            <div class="flex items-center gap-3 min-w-0">
+              <svg class="w-4 h-4 text-gray-400 shrink-0 transition-transform group-open:rotate-90" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M7 5l5 5-5 5" /></svg>
+              <div class="min-w-0">
+                <div class="control-label mb-1"><%= t('หมายเลขคำสั่งซื้อ') %></div>
+                <span class="id-tag">#<%= o.order_id %></span>
+                <div class="text-sm text-gray-500 mt-1.5"><%= new Date(o.order_date).toLocaleDateString(lang === 'en' ? 'en-GB' : 'th-TH') %></div>
+              </div>
+            </div>
+            <div class="text-right shrink-0">
+              <div class="font-bold text-gray-900 mb-1"><%= o.total_amount.toLocaleString() %> <%= t('บาท') %></div>
+              <div class="flex flex-wrap justify-end gap-1">
+                <span class="<%= statusColor(o.status) %>"><%= t(statusLabel(o.status)) %></span>
+                <% if (o.shipping_status) { %>
+                  <span class="<%= statusColor(o.shipping_status) %>"><%= t(statusLabel(o.shipping_status)) %></span>
+                <% } %>
+              </div>
+            </div>
+          </summary>
+          <%- include('../partials/order-detail-panel', {
+            shippingAddress: o.shipping_address,
+            itemsLabel: t('รายการสินค้า'),
+            items: o.items,
+            history: o.history,
+          }) %>
+        </details>
+      <% }); %>
+    </div>
+  <% } %>
+
+  <h2 class="section-title mb-3"><%= t('งานจัดสเปคคอม') %></h2>
+  <% if (builds.length === 0) { %>
+    <div class="card empty-state py-10">
+      <p class="mb-4"><%= t('ยังไม่มีงานจัดสเปคคอม') %></p>
+      <a href="/build" class="btn-primary btn-sm"><%= t('เริ่มจัดสเปคคอม') %></a>
+    </div>
+  <% } else { %>
+    <div class="card divide-y divide-gray-100">
+      <% builds.forEach(function(b) { %>
+        <div class="flex items-center justify-between p-4 sm:p-5 flex-wrap gap-3">
+          <a href="/build/<%= b.build_id %>/status" class="flex-1 min-w-0 hover:text-brand-600 transition-colors">
+            <div class="control-label mb-1"><%= t('ชื่อชุดจัดสเปค') %></div>
+            <div class="font-medium text-gray-900 truncate"><%= b.build_name %></div>
+            <div class="text-sm text-gray-500 mt-1"><%= new Date(b.build_date).toLocaleDateString(lang === 'en' ? 'en-GB' : 'th-TH') %></div>
+          </a>
+          <div class="text-right">
+            <div class="font-bold text-gray-900 mb-1"><%= b.total_price.toLocaleString() %> <%= t('บาท') %></div>
+            <span class="<%= statusColor(b.status) %>"><%= t(statusLabel(b.status)) %></span>
+          </div>
+        </div>
+      <% }); %>
+    </div>
+  <% } %>
+</div>

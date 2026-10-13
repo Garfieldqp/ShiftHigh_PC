@@ -1,0 +1,80 @@
+<%# ฟอร์มแก้ไขสินค้า (เฉพาะ admin) %>
+<%- include('../../partials/admin-nav', { currentNav: 'products' }) %>
+<div class="max-w-xl mx-auto px-4 pb-16">
+  <h1 class="page-title mb-6"><%= t('แก้ไขสินค้า') %></h1>
+  <% if (error) { %>
+    <div class="alert-error mb-4"><%= t(error) %></div>
+  <% } %>
+  <form method="POST" action="/admin/products/<%= product.product_id %>" class="card p-6 space-y-4">
+    <div>
+      <label class="field-label"><%= t('ชื่อสินค้า') %></label>
+      <input name="product_name" value="<%= product.product_name %>" class="input <%= errorField === 'product_name' ? 'input-error' : '' %>" required />
+    </div>
+    <div class="grid grid-cols-2 gap-4">
+      <div>
+        <label class="field-label"><%= t('หมวดหมู่') %></label>
+        <select name="category_id" class="select <%= errorField === 'category_id' ? 'input-error' : '' %>" required>
+          <% categories.forEach(function(c) { %>
+            <option value="<%= c.category_id %>" <%= c.category_id === product.category_id ? 'selected' : '' %>><%= t(c.category_name) %></option>
+          <% }); %>
+        </select>
+      </div>
+      <div>
+        <label class="field-label"><%= t('แบรนด์') %></label>
+        <select name="brand_id" class="select <%= errorField === 'brand_id' ? 'input-error' : '' %>" required>
+          <% brands.forEach(function(b) { %>
+            <option value="<%= b.brand_id %>" <%= b.brand_id === product.brand_id ? 'selected' : '' %>><%= b.brand_name %></option>
+          <% }); %>
+        </select>
+      </div>
+    </div>
+    <div class="grid grid-cols-2 gap-4">
+      <div>
+        <label class="field-label"><%= t('ราคา') %></label>
+        <input name="price" type="number" min="0.01" step="0.01" value="<%= product.price %>" class="input <%= errorField === 'price' ? 'input-error' : '' %>" required />
+      </div>
+      <div>
+        <label class="field-label"><%= t('จำนวนสต็อก') %></label>
+        <input name="stock_quantity" type="number" min="0" value="<%= product.stock_quantity %>" class="input <%= errorField === 'stock_quantity' ? 'input-error' : '' %>" />
+      </div>
+    </div>
+    <div>
+      <label class="field-label"><%= t('รายละเอียดสเปค') %></label>
+      <p class="text-xs text-gray-400 mb-1.5"><%= t('พิมพ์ทีละบรรทัด รูปแบบ "หัวข้อ: ค่า" เช่น คอร์ / เธรด: 6 คอร์ / 12 เธรด') %></p>
+      <textarea name="spec_detail" rows="6" class="input font-mono text-sm"><%= product.spec_detail || '' %></textarea>
+    </div>
+    <div>
+      <label class="field-label"><%= t('ลิงก์รูปภาพ (ไม่บังคับ)') %></label>
+      <input name="image_url" value="<%= product.image_url || '' %>" class="input" />
+    </div>
+    <div>
+      <label class="field-label"><%= t('รับประกัน (เดือน)') %></label>
+      <input name="warranty_months" type="number" min="0" value="<%= product.warranty_months || '' %>" class="input <%= errorField === 'warranty_months' ? 'input-error' : '' %>" />
+    </div>
+    <button class="btn-primary w-full"><%= t('บันทึกการแก้ไข') %></button>
+  </form>
+
+  <div class="card p-6 mt-4">
+    <% if (product.is_active) { %>
+      <div class="flex items-center justify-between">
+        <div>
+          <div class="font-medium text-gray-900 text-sm"><%= t('ซ่อนสินค้านี้จากร้าน') %></div>
+          <p class="text-xs text-gray-500"><%= t('ไม่ลบข้อมูลจริง - แค่ไม่แสดงให้ลูกค้าเห็น') %></p>
+        </div>
+        <form method="POST" action="/admin/products/<%= product.product_id %>/deactivate">
+          <button class="btn-danger btn-sm"><%= t('ซ่อนสินค้า') %></button>
+        </form>
+      </div>
+    <% } else { %>
+      <div class="flex items-center justify-between">
+        <div>
+          <div class="font-medium text-gray-900 text-sm"><%= t('สินค้านี้ถูกซ่อนอยู่') %></div>
+          <p class="text-xs text-gray-500"><%= t('ไม่แสดงในร้านให้ลูกค้าเห็น') %></p>
+        </div>
+        <form method="POST" action="/admin/products/<%= product.product_id %>/reactivate">
+          <button class="btn-primary btn-sm"><%= t('เปิดขายอีกครั้ง') %></button>
+        </form>
+      </div>
+    <% } %>
+  </div>
+</div>

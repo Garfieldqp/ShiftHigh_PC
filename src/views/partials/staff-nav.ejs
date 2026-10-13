@@ -1,0 +1,8 @@
+<%# เมนูนำทางย่อยฝั่ง staff (สลับระหว่างหน้าคำสั่งซื้อ/สต็อก/รายงาน) %>
+<div class="max-w-5xl mx-auto px-4 pt-10">
+  <nav class="flex flex-wrap gap-2 text-sm mb-8">
+    <a href="/staff/orders" class="rounded-full px-4 py-1.5 border transition-colors <%= currentNav === 'orders' ? 'bg-brand-600 text-white border-brand-600' : 'text-gray-600 border-gray-200 hover:border-brand-300 hover:text-brand-600' %>"><%= t('คำสั่งซื้อ') %></a>
+    <a href="/staff/stock" class="rounded-full px-4 py-1.5 border transition-colors <%= currentNav === 'stock' ? 'bg-brand-600 text-white border-brand-600' : 'text-gray-600 border-gray-200 hover:border-brand-300 hover:text-brand-600' %>"><%= t('สต็อก') %></a>
+    <a href="/staff/reports" class="rounded-full px-4 py-1.5 border transition-colors <%= currentNav === 'reports' ? 'bg-brand-600 text-white border-brand-600' : 'text-gray-600 border-gray-200 hover:border-brand-300 hover:text-brand-600' %>"><%= t('รายงานยอดขาย') %></a>
+  </nav>
+</div>

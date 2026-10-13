@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PC Shop: เอกสารอธิบายโปรเจกต์</title>
+<style>
+  :root {
+    --bg: #FAFAF8;
+    --surface: #FFFFFF;
+    --ink: #1C2128;
+    --ink-soft: #4B5563;
+    --border: #E4E4E1;
+    --accent: #0F6E5C;
+    --accent-soft: #E6F2EF;
+    --code-bg: #F1F1EE;
+    --sidebar-w: 280px;
+  }
+
+  * { box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Sarabun", "Noto Sans Thai", sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    line-height: 1.65;
+  }
+
+  .layout {
+    display: grid;
+    grid-template-columns: var(--sidebar-w) 1fr;
+    min-height: 100vh;
+  }
+
+  /* ---------- Sidebar ---------- */
+  nav.sidebar {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+    padding: 32px 24px;
+    border-right: 1px solid var(--border);
+    background: var(--surface);
+  }
+
+  .sidebar .brand {
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    color: var(--ink);
+    margin: 0 0 2px 0;
+  }
+
+  .sidebar .brand-sub {
+    font-size: 12.5px;
+    color: var(--ink-soft);
+    margin: 0 0 28px 0;
+  }
+
+  .sidebar ol {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    counter-reset: toc;
+  }
+
+  .sidebar li {
+    counter-increment: toc;
+    margin-bottom: 2px;
+  }
+
+  .sidebar a {
+    display: flex;
+    gap: 10px;
+    align-items: baseline;
+    padding: 7px 10px;
+    border-radius: 7px;
+    color: var(--ink-soft);
+    text-decoration: none;
+    font-size: 13.5px;
+    line-height: 1.4;
+    transition: background 0.12s ease, color 0.12s ease;
+  }
+
+  .sidebar a::before {
+    content: counter(toc);
+    font-size: 11px;
+    font-variant-numeric: tabular-nums;
+    color: var(--accent);
+    font-weight: 600;
+    min-width: 14px;
+  }
+
+  .sidebar a:hover {
+    background: var(--accent-soft);
+    color: var(--ink);
+  }
+
+  .sidebar a.active {
+    background: var(--accent-soft);
+    color: var(--accent);
+    font-weight: 600;
+  }
+
+  /* ---------- Content ---------- */
+  main {
+    max-width: 780px;
+    padding: 56px 48px 120px 48px;
+  }
+
+  .doc-title {
+    font-size: 30px;
+    font-weight: 700;
+    letter-spacing: -0.015em;
+    margin: 0 0 8px 0;
+  }
+
+  .doc-subtitle {
+    color: var(--ink-soft);
+    font-size: 15px;
+    margin: 0 0 48px 0;
+  }
+
+  section {
+    margin-bottom: 56px;
+    scroll-margin-top: 24px;
+  }
+
+  h2 {
+    font-size: 21px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    margin: 0 0 18px 0;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+  }
+
+  h2 .num {
+    color: var(--accent);
+    font-variant-numeric: tabular-nums;
+  }
+
+  h3 {
+    font-size: 15.5px;
+    font-weight: 700;
+    margin: 28px 0 12px 0;
+    color: var(--ink);
+  }
+
+  p { margin: 0 0 14px 0; max-width: 68ch; }
+
+  ol, ul { margin: 0 0 14px 0; padding-left: 22px; }
+  li { margin-bottom: 6px; }
+
+  strong { font-weight: 700; }
+
+  code {
+    font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    background: var(--code-bg);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.88em;
+    color: #0F5C4E;
+  }
+
+  /* ---------- Tables ---------- */
+  .table-wrap { overflow-x: auto; margin: 0 0 20px 0; border: 1px solid var(--border); border-radius: 10px; }
+
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    font-size: 13.5px;
+    background: var(--surface);
+  }
+
+  th {
+    text-align: left;
+    background: #F5F5F2;
+    padding: 10px 14px;
+    font-weight: 600;
+    color: var(--ink);
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+  }
+
+  td {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+    color: var(--ink-soft);
+    vertical-align: top;
+  }
+
+  tr:last-child td { border-bottom: none; }
+  td:first-child, th:first-child { color: var(--ink); }
+
+  /* ---------- Entity cards ---------- */
+  .entity-card {
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 18px;
+    margin-bottom: 14px;
+    background: var(--surface);
+  }
+
+  .entity-card .entity-name {
+    font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--accent);
+  }
+
+  .entity-card .entity-desc {
+    color: var(--ink-soft);
+    font-size: 13.5px;
+    margin: 2px 0 10px 0;
+  }
+
+  .entity-card .attrs {
+    font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    font-size: 12.5px;
+    color: var(--ink-soft);
+    line-height: 1.8;
+    word-break: break-word;
+  }
+
+  .pk { font-weight: 700; color: var(--ink); }
+  .fk { font-style: italic; }
+
+  .group-label {
+    font-size: 11.5px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--accent);
+    margin: 24px 0 10px 0;
+  }
+
+  /* ---------- Tree / code block ---------- */
+  pre.tree {
+    background: #16181D;
+    color: #D8DEE4;
+    padding: 20px 22px;
+    border-radius: 10px;
+    overflow-x: auto;
+    font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    font-size: 12.5px;
+    line-height: 1.7;
+  }
+
+  pre.flow {
+    background: var(--code-bg);
+    padding: 16px 18px;
+    border-radius: 10px;
+    overflow-x: auto;
+    font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    font-size: 12.5px;
+    line-height: 1.7;
+    color: var(--ink);
+    border: 1px solid var(--border);
+  }
+
+  .note-box {
+    background: var(--accent-soft);
+    border-left: 3px solid var(--accent);
+    padding: 14px 18px;
+    border-radius: 0 8px 8px 0;
+    font-size: 13.5px;
+    color: #0F5C4E;
+    margin-bottom: 10px;
+  }
+  .note-box ul { margin: 6px 0 0 0; }
+  .note-box li { margin-bottom: 4px; }
+
+  .summary-callout {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px 26px;
+    text-align: center;
+  }
+  .summary-callout .big {
+    font-size: 34px;
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: -0.02em;
+  }
+
+  @media (max-width: 860px) {
+    .layout { grid-template-columns: 1fr; }
+    nav.sidebar { position: relative; height: auto; border-right: none; border-bottom: 1px solid var(--border); }
+    main { padding: 32px 20px 80px 20px; }
+  }
+
+  @media print {
+    nav.sidebar { display: none; }
+    .layout { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="layout">
+
+  <nav class="sidebar" id="toc">
+    <p class="brand">PC Shop</p>
+    <p class="brand-sub">เอกสารอธิบายโปรเจกต์</p>
+    <ol>
+      <li><a href="#s1">โปรเจกต์นี้คืออะไร</a></li>
+      <li><a href="#s2">ฟีเจอร์ทั้งหมด</a></li>
+      <li><a href="#s3">Tech Stack</a></li>
+      <li><a href="#s4">ฐานข้อมูลคืออะไร</a></li>
+      <li><a href="#s5">โครงสร้างโปรเจกต์ (MVC)</a></li>
+      <li><a href="#s6">Business Rules</a></li>
+      <li><a href="#s7">Entity &amp; Attribute</a></li>
+      <li><a href="#s8">ความสัมพันธ์ (ERD)</a></li>
+      <li><a href="#s9">สรุปจำนวน Entity</a></li>
+    </ol>
+  </nav>
+
+  <main>
+    <h1 class="doc-title">PC Shop: ระบบร้านคอมพิวเตอร์</h1>
+    <p class="doc-subtitle">เอกสารอธิบายโปรเจกต์ฉบับสมบูรณ์ · Express + TypeScript + EJS + MySQL</p>
+
+    <section id="s1">
+      <h2><span class="num">1</span> โปรเจกต์นี้คืออะไร ทำอะไร</h2>
+      <p>โปรเจกต์นี้คือ <strong>เว็บแอปพลิเคชันสำหรับร้านขายอุปกรณ์คอมพิวเตอร์</strong> ที่แก้ปัญหาทั้งฝั่งลูกค้าและฝั่งร้านไปพร้อมกัน</p>
+      <p><strong>ฝั่งลูกค้า:</strong> เวลาลูกค้าอยากซื้ออุปกรณ์คอมหรือประกอบคอมสักเครื่อง มักต้องเดินทางไปที่ร้านเท่านั้น เพราะไม่มีทางรู้ล่วงหน้าเลยว่าร้านมีสินค้าอะไรบ้าง เหลือของไหม หรือราคาเท่าไหร่ ยิ่งถ้าอยากประกอบคอมเอง ปัญหาจะซับซ้อนขึ้นไปอีก เพราะลูกค้าต้องจำเองว่าเลือกอะไหล่ครบทุกชิ้นหรือยัง และคาดเดาราคารวมทั้งชุดไม่ได้จนกว่าจะยืนคุยกับพนักงานที่หน้าร้าน</p>
+      <p><strong>ฝั่งร้าน:</strong> เมื่อรับทั้งงานขายของหน้าร้านและงานประกอบคอมพร้อมกัน พนักงานมักไม่มีระบบกลางที่บอกได้ว่าอะไหล่ชิ้นไหนถูกจองไว้ให้ลูกค้าที่กำลังรอประกอบอยู่แล้ว จึงเกิดเหตุการณ์ขายอะไหล่ชิ้นเดียวกันซ้ำโดยไม่ตั้งใจ การไม่มีช่องทางขายออนไลน์ยังทำให้ร้านพลาดโอกาสขายจากลูกค้าที่ไม่สะดวกมาที่ร้านด้วย</p>
+      <p>เว็บนี้จึงออกแบบให้รองรับทั้งสองรูปแบบการซื้อในระบบเดียวกัน พร้อมติดตามสถานะได้ตั้งแต่ลูกค้าจ่ายเงินจนถึงของไปส่งถึงมือ เปิดช่องทางขายออนไลน์เพิ่มให้ร้าน และลดปัญหาอะไหล่ถูกขายซ้ำ</p>
+    </section>
+
+    <section id="s2">
+      <h2><span class="num">2</span> ในเว็บทำอะไรได้บ้าง</h2>
+
+      <h3>ฝั่งลูกค้า</h3>
+      <div class="table-wrap">
+        <table>
+          <tr><th>ฟีเจอร์</th><th>อธิบาย</th></tr>
+          <tr><td>ดูรายการ + รายละเอียดสินค้า</td><td>ดูสินค้าทั้งหมดแยกตามหมวดหมู่ และดูหน้ารายละเอียดสินค้าทีละชิ้น (<strong>ดูได้โดยไม่ต้อง login</strong>)</td></tr>
+          <tr><td>สมัครสมาชิก/ล็อกอิน (บังคับ)</td><td>ต้อง login ก่อนถึงจะ add to cart, จัดสเปคคอม, หรือ checkout ได้ ทุกฟีเจอร์ที่เกี่ยวกับการซื้อบังคับ login ทั้งหมด</td></tr>
+          <tr><td>เลือกซื้อสินค้าปกติ</td><td>หยิบใส่ตะกร้า แล้วชำระเงิน</td></tr>
+          <tr><td>จัดสเปคคอม (จุดเด่นของระบบ)</td><td>เลือกอะไหล่ทีละหมวด ใส่ลงตะกร้าเป็น "ชุด" ได้เหมือนสินค้าปกติ แล้ว checkout ผ่านระบบเดียวกัน</td></tr>
+          <tr><td>ติดตามสถานะงานประกอบ</td><td>ดูได้ว่างานอยู่ขั้นไหน (รอช่างรับงาน → กำลังประกอบ → ประกอบเสร็จ → กำลังจัดส่ง → ถึงแล้ว)</td></tr>
+          <tr><td>ดูประวัติคำสั่งซื้อทั้งหมด</td><td>เพราะทุกคนมี account อยู่แล้ว จึงดูประวัติคำสั่งซื้อ/งานจัดสเปคย้อนหลังได้เสมอ</td></tr>
+          <tr><td>ข้อมูลติดต่อร้าน</td><td>แสดงเบอร์โทร, LINE ID, อีเมลของร้าน (เช่นในส่วน footer) ให้ลูกค้าติดต่อสอบถามได้นอกเว็บ</td></tr>
+        </table>
+      </div>
+
+      <h3>ฝั่งพนักงาน (สมัครเองได้ แต่ใช้งานได้ต่อเมื่อ admin อนุมัติ role แล้ว)</h3>
+      <p>แบ่ง role ตามหลัก <strong>Separation of Duties</strong> คือไม่ให้ role เดียวมีอำนาจทำทุกอย่าง โดยเฉพาะอำนาจที่กระทบความปลอดภัยของระบบเอง (อนุมัติ/เปลี่ยน role คนอื่น) จำกัดไว้เฉพาะ admin</p>
+      <div class="table-wrap">
+        <table>
+          <tr><th>บทบาท</th><th>ทำอะไรได้</th></tr>
+          <tr><td>รอตรวจสอบ <code>unassigned</code></td><td>สถานะเริ่มต้นหลังสมัคร ล็อกอินได้แต่เข้าเมนูงานใดๆ ไม่ได้จนกว่า admin จะอนุมัติ</td></tr>
+          <tr><td>พนักงานทั่วไป <code>staff</code></td><td>ปรับสต็อกสินค้า, อัปเดตสถานะจัดส่ง, ดูรายงานยอดขาย, ดู/จัดการรายการคำสั่งซื้อแต่ละใบ (ทำเรื่องบัญชีพนักงานคนอื่นไม่ได้)</td></tr>
+          <tr><td>ช่าง <code>technician</code></td><td>เห็นคิวงานจัดสเปคที่จ่ายเงินแล้ว เปิดดูรายละเอียดอะไหล่ รับงานไปประกอบ อัปเดตสถานะ</td></tr>
+          <tr><td>แอดมิน <code>admin</code></td><td>ทำได้ทุกอย่างของ staff บวก: อนุมัติ/เปลี่ยน role พนักงาน, ปิดบัญชี, เพิ่ม/แก้/ลบสินค้า-หมวดหมู่-แบรนด์</td></tr>
+        </table>
+      </div>
+      <div class="note-box">เหตุผลที่แยก staff ออกจาก admin: ถ้าบัญชี staff ถูกแฮ็กหรือพนักงานไม่ซื่อสัตย์ อย่างน้อยก็เปลี่ยน role ตัวเองเป็น admin เองไม่ได้ หรือสร้างบัญชีปลอมแล้วอนุมัติตัวเองไม่ได้ ต้องผ่าน admin จริงเท่านั้น</div>
+    </section>
+
+    <section id="s3">
+      <h2><span class="num">3</span> เขียนเว็บนี้จากอะไร (Tech Stack)</h2>
+      <div class="table-wrap">
+        <table>
+          <tr><th>ส่วน</th><th>เทคโนโลยี</th><th>เหตุผล</th></tr>
+          <tr><td>Backend</td><td><code>Node.js + Express.js</code> (<code>TypeScript</code>)</td><td>จัดการ route บน Node, TypeScript จับ error ตั้งแต่ตอนเขียนโค้ด</td></tr>
+          <tr><td>Frontend/View</td><td><code>EJS</code> + <code>Tailwind CSS</code> + <code>fetch()</code></td><td>render HTML แบบ dynamic ฝั่ง server ตามที่คอร์สสอน</td></tr>
+          <tr><td>Database</td><td><code>MySQL</code> ผ่าน <code>mysql2</code></td><td>เก็บข้อมูลจริงทั้งหมด (ดูหัวข้อ 4)</td></tr>
+          <tr><td>Auth</td><td><code>JWT</code> (access + refresh token)</td><td>มี 2 ระบบ login แยกกัน: ลูกค้า และพนักงาน (ทุก role ต้อง login)</td></tr>
+          <tr><td>Deployment</td><td>Git → <code>Render</code></td><td>push GitHub → build (<code>tsc</code>) → <code>npm start</code></td></tr>
+        </table>
+      </div>
+    </section>
+
+    <section id="s4">
+      <h2><span class="num">4</span> ฐานข้อมูลคืออะไร</h2>
+      <p><strong>MySQL</strong> คือระบบจัดการฐานข้อมูลเชิงสัมพันธ์ ที่เก็บข้อมูลทุกอย่างของร้าน โค้ดเว็บทำหน้าที่ "รับคำสั่งจากผู้ใช้แล้วไปถาม/บันทึกข้อมูล" ส่วน MySQL คือที่เก็บข้อมูลจริงแบบถาวร</p>
+      <h3>เหตุผลที่เลือก MySQL แทน NoSQL</h3>
+      <ol>
+        <li>ข้อมูลมีความสัมพันธ์กันแน่นมาก ใช้ Foreign Key บังคับความถูกต้องได้</li>
+        <li>ต้องการ <strong>ACID Transaction</strong>: ตอนจ่ายเงินต้องหักสต็อกพร้อมสร้างออเดอร์ในจังหวะเดียว</li>
+        <li>ต้อง query แบบ join หลายตารางบ่อย</li>
+        <li>ขนาดข้อมูลร้านคอมทั่วไปไม่ได้ใหญ่ระดับต้องการ horizontal scaling</li>
+      </ol>
+      <h3>ทำไม Customer กับ Employee เป็นคนละตาราง ไม่รวมเป็น User เดียว</h3>
+      <p>ลูกค้ากับพนักงานมี attribute ต่างกันจริงในโลกจริง (ลูกค้ามีที่อยู่จัดส่ง พนักงานมีวันเริ่มงานและ role) การแยกตารางทำให้ Foreign Key อ้างอิงเฉพาะ entity ที่ถูกต้องได้เองตั้งแต่ระดับโครงสร้าง เช่น <code>SalesOrder.customer_id</code> อ้างอิงได้แค่คนในตาราง Customer เท่านั้น ถ้ารวมเป็นตารางเดียวจะต้องเขียนโค้ดเช็ค role ของ FK เองเพิ่มเติม เสี่ยงผิดพลาดโดยไม่จำเป็น</p>
+    </section>
+
+    <section id="s5">
+      <h2><span class="num">5</span> โครงสร้างโปรเจกต์ (MVC)</h2>
+      <ul>
+        <li><strong>Model</strong> = โฟลเดอร์ <code>models/</code> คือข้อมูลและกฎธุรกิจ</li>
+        <li><strong>View</strong> = โฟลเดอร์ <code>views/</code> คือ EJS templates</li>
+        <li><strong>Controller</strong> = โฟลเดอร์ <code>controllers/</code> ทำหน้าที่รับ-ส่งเท่านั้น</li>
+      </ul>
+
+      <pre class="tree">pc-shop/
+├─ src/
+│  ├─ app.ts                        # ประกอบ Express app: middleware, view engine, mount routes
+│  ├─ server.ts                     # จุดเริ่มโปรแกรมจริง แค่ import app แล้ว listen port
+│  │
+│  ├─ config/db.ts, env.ts          # MySQL pool + ตรวจสอบ .env
+│  │
+│  ├─ models/                       # [M] Customer, Employee, Brand, Category, Product,
+│  │                                 #     StockAdjustment, SalesOrder, OrderItem, PCBuild,
+│  │                                 #     BuildItem, BuildStatusHistory, Shipment, Payment
+│  │
+│  ├─ services/
+│  │   ├─ customerAuthService.ts    # สมัคร/login ลูกค้า + JWT
+│  │   ├─ employeeAuthService.ts    # สมัคร/login พนักงาน (role เริ่ม unassigned) + JWT
+│  │   ├─ productService.ts         cartService.ts        orderService.ts
+│  │   ├─ buildService.ts           stockService.ts       shipmentService.ts
+│  │   ├─ staffService.ts           # ฟังก์ชันที่ staff และ admin ใช้ร่วมกัน (สต็อก, จัดส่ง, รายงาน, รายการออเดอร์)
+│  │   └─ employeeService.ts        # อนุมัติ/เปลี่ยน role/ปิดบัญชี (admin เท่านั้น)
+│  │
+│  ├─ controllers/                  # [C]
+│  │   ├─ customerAuthController.ts productController.ts
+│  │   ├─ cartController.ts         checkoutController.ts
+│  │   ├─ orderController.ts        buildController.ts
+│  │   ├─ employeeAuthController.ts technicianController.ts
+│  │   ├─ staffController.ts        # สต็อก, จัดส่ง, รายงาน, ดู/อัปเดตสถานะออเดอร์ (staff และ admin เข้าได้)
+│  │   └─ adminController.ts        # สินค้า, อนุมัติ/เปลี่ยน role/ลบบัญชี (admin เท่านั้น)
+│  │
+│  ├─ routes/
+│  │   ├─ customerAuthRoutes.ts     employeeAuthRoutes.ts
+│  │   ├─ productRoutes.ts          # public ไม่ต้อง login
+│  │   ├─ cartRoutes.ts             # ต้อง customerAuthGuard ทุกเส้นทาง
+│  │   ├─ orderRoutes.ts            buildRoutes.ts
+│  │   ├─ technicianRoutes.ts       # authGuard + roleGuard('technician')
+│  │   ├─ staffRoutes.ts            # GET /staff/orders, POST /staff/orders/:id/status (authGuard + roleGuard(['staff','admin']))
+│  │   └─ adminRoutes.ts            # authGuard + roleGuard('admin') เท่านั้น
+│  │
+│  ├─ views/                        # [V]
+│  │   ├─ layouts/main.ejs   partials/header.ejs, footer.ejs
+│  │   ├─ auth/customer-login.ejs, customer-register.ejs
+│  │   ├─ auth/employee-login.ejs, employee-register.ejs
+│  │   ├─ products/index.ejs, show.ejs
+│  │   ├─ cart/index.ejs     checkout/index.ejs
+│  │   ├─ orders/index.ejs, confirmation.ejs
+│  │   ├─ build/select.ejs, status.ejs
+│  │   ├─ technician/queue.ejs, build-detail.ejs
+│  │   ├─ staff/stock.ejs, shipping-queue.ejs, reports.ejs, orders.ejs
+│  │   └─ admin/products/index.ejs, products/new.ejs,
+│  │             employees.ejs       # รวมพนักงานทุกสถานะ แก้ role ได้ในหน้านี้ (admin เท่านั้น)
+│  │
+│  ├─ middleware/
+│  │   ├─ customerAuthGuard.ts      authGuard.ts          roleGuard.ts
+│  │   └─ errorHandler.ts
+│  │
+│  ├─ types/index.ts                └─ utils/password.ts
+│
+├─ public/css/tailwind.css   public/js/cart.js, checkout.js, build.js
+├─ data/schema.sql                  # CREATE TABLE ทั้ง 13 entity
+├─ scripts/seed.ts
+├─ .env   .env.example   package.json   tsconfig.json</pre>
+
+      <h3>Flow checkout แบบตะกร้าผสม (สินค้าปกติ + ชุดคอม)</h3>
+      <pre class="flow">ลูกค้ากด checkout (ตะกร้ามีทั้งสินค้าเดี่ยวและชุดคอมที่จัดสเปคไว้)
+→ cartService ตรวจตะกร้า แยกเป็น 2 ส่วน
+  - มีสินค้าเดี่ยว → สร้าง SalesOrder + OrderItem
+  - มีชุดคอม → สร้าง PCBuild + BuildItem (เก็บอะไหล่แต่ละชิ้นไว้ให้ช่างเห็น)
+→ ทั้งสองส่วนใช้ที่อยู่จัดส่งเดียวกัน จ่ายเงินหน้าเดียวกัน
+→ สร้าง Payment แยกตามรายการ (order_id หรือ build_id อย่างใดอย่างหนึ่ง)</pre>
+    </section>
+
+    <section id="s6">
+      <h2><span class="num">6</span> Business Rules</h2>
+      <div class="table-wrap">
+        <table>
+          <tr><th>#</th><th>กฎ</th><th>เหตุผล</th></tr>
+          <tr><td>1</td><td>ต้อง login ก่อนถึงจะ add to cart, จัดสเปค, หรือ checkout ได้ (ดูสินค้าไม่ต้อง login)</td><td>ทุกคนมี account เสมอ ไม่ต้องแยกเคส guest/member</td></tr>
+          <tr><td>2</td><td>พนักงานสมัครเองได้ role เริ่มต้นเป็น <code>unassigned</code> เข้าเมนูงานไม่ได้จนกว่า admin จะอนุมัติ</td><td>ลดภาระ admin แต่ยังป้องกันคนนอกได้สิทธิ์ทันที</td></tr>
+          <tr><td>3</td><td>เฉพาะ <code>admin</code> เท่านั้นที่อนุมัติพนักงานใหม่ เปลี่ยน role หรือปิดบัญชีได้ <code>staff</code> ทำไม่ได้</td><td>Separation of Duties: ป้องกันบัญชีที่ถูกแฮ็กหรือพนักงานไม่ซื่อสัตย์ยกระดับสิทธิ์ตัวเอง</td></tr>
+          <tr><td>4</td><td>รหัสผ่านของ Customer/Employee เก็บเป็น hash เท่านั้น</td><td>มาตรฐานความปลอดภัยขั้นพื้นฐาน</td></tr>
+          <tr><td>5</td><td>พนักงานทุกบทบาทอยู่ใน entity เดียวคือ <code>Employee</code> แยกด้วย <code>role</code></td><td>role ปรับเปลี่ยนภายหลังได้ ลดความซ้ำซ้อนของตาราง</td></tr>
+          <tr><td>6</td><td>Customer และ Employee เป็นคนละ entity ไม่รวมเป็นตารางเดียว</td><td>attribute ต่างกันจริง และ FK อ้างอิงเฉพาะ entity ที่ถูกต้องได้เองตั้งแต่ระดับโครงสร้าง</td></tr>
+          <tr><td>7</td><td>ทุกครั้งที่ปรับสต็อก ต้องบันทึกลง <code>StockAdjustment</code></td><td>audit ย้อนหลังได้ว่าใครปรับ เมื่อไหร่ เท่าไหร่</td></tr>
+          <tr><td>8</td><td>สต็อกที่ลดจากการขายไม่ต้องบันทึกซ้ำ</td><td>trace ผ่าน <code>OrderItem</code>/<code>BuildItem</code> ได้อยู่แล้ว</td></tr>
+          <tr><td>9</td><td><code>PCBuild.assigned_technician_id</code> เก็บผู้รับผิดชอบปัจจุบัน ส่วน <code>BuildStatusHistory</code> เก็บ log ทั้งหมด</td><td>ต้องรู้ทั้งสถานะปัจจุบันและประวัติย้อนหลัง</td></tr>
+          <tr><td>10</td><td><code>Shipment</code> แยกจาก <code>BuildStatusHistory</code> ใช้ร่วมกับ <code>SalesOrder</code> ได้</td><td>มี attribute เฉพาะทางที่ไม่เกี่ยวกับสถานะประกอบ</td></tr>
+          <tr><td>11</td><td><code>Payment</code>/<code>Shipment</code> มี FK สองเส้นแบบ nullable ต้องมีค่าอย่างใดอย่างหนึ่งเท่านั้น</td><td>รองรับตะกร้าผสมที่สร้างทั้งออเดอร์และงานจัดสเปคพร้อมกันได้</td></tr>
+          <tr><td>12</td><td><code>OrderItem</code>/<code>BuildItem</code> เป็น associative entity ไม่ใช่ entity อิสระ</td><td>ความสัมพันธ์แบบ M:N ต้องมีตารางกลางตามหลัก ER-to-Relational mapping</td></tr>
+          <tr><td>13</td><td>Staff และ admin ต้องดูและอัปเดตสถานะ <code>SalesOrder</code> แต่ละใบได้ ไม่ใช่แค่ดูรายงานสรุป</td><td>ใบงานกำหนดว่าต้องมี CRUD ครบของ main record ทุกตัว รายงานสรุปเป็นแค่ข้อมูลรวม ไม่ใช่การจัดการรายตัว</td></tr>
+        </table>
+      </div>
+    </section>
+
+    <section id="s7">
+      <h2><span class="num">7</span> Entity &amp; Attribute (13 entities)</h2>
+      <p>สัญลักษณ์: <span class="pk">ตัวหนา</span> = Primary Key, <span class="fk">ตัวเอียง</span> = Foreign Key</p>
+
+      <p class="group-label">MASTER DATA</p>
+      <div class="entity-card">
+        <div class="entity-name">Customer</div>
+        <div class="entity-desc">ข้อมูลลูกค้า</div>
+        <div class="attrs"><span class="pk">customer_id</span>, full_name, email (unique), phone, password_hash, address, created_at</div>
+      </div>
+      <div class="entity-card">
+        <div class="entity-name">Employee</div>
+        <div class="entity-desc">ข้อมูลพนักงาน สมัครเองได้ role เริ่มต้นเป็น unassigned</div>
+        <div class="attrs"><span class="pk">employee_id</span>, full_name, email (unique), password_hash, phone, role (unassigned/staff/technician/admin), hire_date (nullable)</div>
+      </div>
+      <div class="entity-card">
+        <div class="entity-name">Brand</div>
+        <div class="entity-desc">แบรนด์สินค้า</div>
+        <div class="attrs"><span class="pk">brand_id</span>, brand_name, country_origin</div>
+      </div>
+      <div class="entity-card">
+        <div class="entity-name">Category</div>
+        <div class="entity-desc">หมวดหมู่สินค้า</div>
+        <div class="attrs"><span class="pk">category_id</span>, category_name, is_build_component, description</div>
+      </div>
+      <div class="entity-card">
+        <div class="entity-name">Product</div>
+        <div class="entity-desc">สินค้า/อะไหล่</div>
+        <div class="attrs"><span class="pk">product_id</span>, product_name, <span class="fk">category_id</span>, <span class="fk">brand_id</span>, price, stock_quantity, spec_detail, image_url, warranty_months, is_active</div>
+      </div>
+
+      <p class="group-label">สต็อก</p>
+      <div class="entity-card">
+        <div class="entity-name">StockAdjustment</div>
+        <div class="entity-desc">บันทึกประวัติการปรับปรุงจำนวนสต็อกสินค้า</div>
+        <div class="attrs"><span class="pk">adjustment_id</span>, <span class="fk">product_id</span>, <span class="fk">employee_id</span>, quantity_changed, adjustment_type (restock/correction), note, adjusted_at</div>
+      </div>
+
+      <p class="group-label">ซื้อของปกติ</p>
+      <div class="entity-card">
+        <div class="entity-name">SalesOrder</div>
+        <div class="entity-desc">คำสั่งซื้อ</div>
+        <div class="attrs"><span class="pk">order_id</span>, <span class="fk">customer_id</span>, order_date, status (pending/paid/cancelled), total_amount, shipping_address</div>
+      </div>
+      <div class="entity-card">
+        <div class="entity-name">OrderItem</div>
+        <div class="entity-desc">รายการสินค้าในคำสั่งซื้อ เป็นตัวเชื่อม M:N ระหว่าง SalesOrder กับ Product</div>
+        <div class="attrs"><span class="pk fk">order_id</span>, <span class="pk fk">product_id</span>, quantity, unit_price</div>
+      </div>
+
+      <p class="group-label">จัดสเปคคอม</p>
+      <div class="entity-card">
+        <div class="entity-name">PCBuild</div>
+        <div class="entity-desc">งานจัดสเปคคอมของลูกค้า</div>
+        <div class="attrs"><span class="pk">build_id</span>, <span class="fk">customer_id</span>, <span class="fk">assigned_technician_id</span> (nullable), build_name, build_date, status (draft/paid/assigned/assembling/completed/shipped/delivered), total_price</div>
+      </div>
+      <div class="entity-card">
+        <div class="entity-name">BuildItem</div>
+        <div class="entity-desc">รายการอะไหล่ในงานจัดสเปค เป็นตัวเชื่อม M:N ระหว่าง PCBuild กับ Product</div>
+        <div class="attrs"><span class="pk fk">build_id</span>, <span class="pk fk">product_id</span>, quantity</div>
+      </div>
+      <div class="entity-card">
+        <div class="entity-name">BuildStatusHistory</div>
+        <div class="entity-desc">ประวัติการเปลี่ยนสถานะงานจัดสเปค</div>
+        <div class="attrs"><span class="pk">history_id</span>, <span class="fk">build_id</span>, <span class="fk">employee_id</span>, status, updated_at, note</div>
+      </div>
+
+      <p class="group-label">จัดส่ง</p>
+      <div class="entity-card">
+        <div class="entity-name">Shipment</div>
+        <div class="entity-desc">ข้อมูลการจัดส่ง ใช้ได้ทั้งงานจัดสเปคและออเดอร์ปกติ</div>
+        <div class="attrs"><span class="pk">shipment_id</span>, <span class="fk">build_id</span> (nullable), <span class="fk">order_id</span> (nullable), <span class="fk">employee_id</span>, courier_name, tracking_number, shipped_date, delivered_date, shipping_status</div>
+      </div>
+
+      <p class="group-label">ร่วม</p>
+      <div class="entity-card">
+        <div class="entity-name">Payment</div>
+        <div class="entity-desc">การชำระเงิน ใช้ได้ทั้งงานจัดสเปคและออเดอร์ปกติ</div>
+        <div class="attrs"><span class="pk">payment_id</span>, <span class="fk">order_id</span> (nullable), <span class="fk">build_id</span> (nullable), amount, payment_date, payment_method, payment_status</div>
+      </div>
+    </section>
+
+    <section id="s8">
+      <h2><span class="num">8</span> ความสัมพันธ์ระหว่าง Entity (สำหรับวาด ERD)</h2>
+      <div class="table-wrap">
+        <table>
+          <tr><th>#</th><th>ความสัมพันธ์</th><th>Cardinality</th><th>คำอธิบาย</th></tr>
+          <tr><td>1</td><td>Customer – places – SalesOrder</td><td>1:N</td><td>ลูกค้าหนึ่งคนสั่งซื้อได้หลายครั้ง</td></tr>
+          <tr><td>2</td><td>SalesOrder – contains – OrderItem</td><td>1:N</td><td>ออเดอร์หนึ่งมีหลายรายการสินค้า</td></tr>
+          <tr><td>3</td><td>Product – appears in – OrderItem</td><td>1:N</td><td>แก้ปัญหา M:N ระหว่าง SalesOrder กับ Product</td></tr>
+          <tr><td>4</td><td>Category – classifies – Product</td><td>1:N</td><td>หนึ่งหมวดหมู่มีหลายสินค้า</td></tr>
+          <tr><td>5</td><td>Brand – produces – Product</td><td>1:N</td><td>หนึ่งแบรนด์มีหลายสินค้า</td></tr>
+          <tr><td>6</td><td>Product – has – StockAdjustment</td><td>1:N</td><td>สินค้าหนึ่งชิ้นถูกปรับสต็อกได้หลายครั้ง</td></tr>
+          <tr><td>7</td><td>Employee – performs – StockAdjustment</td><td>1:N</td><td>พนักงานหนึ่งคนปรับสต็อกได้หลายครั้ง</td></tr>
+          <tr><td>8</td><td>Customer – requests – PCBuild</td><td>1:N</td><td>ลูกค้าขอจัดสเปคได้หลายครั้ง</td></tr>
+          <tr><td>9</td><td>Employee – assigned to – PCBuild</td><td>1:N</td><td>ช่างหนึ่งคนรับผิดชอบได้หลายงาน</td></tr>
+          <tr><td>10</td><td>PCBuild – composed of – BuildItem</td><td>1:N</td><td>งานจัดสเปคหนึ่งงานมีหลายอะไหล่</td></tr>
+          <tr><td>11</td><td>Product – used in – BuildItem</td><td>1:N</td><td>แก้ปัญหา M:N ระหว่าง PCBuild กับ Product</td></tr>
+          <tr><td>12</td><td>PCBuild – has – BuildStatusHistory</td><td>1:N</td><td>มีการอัปเดตสถานะได้หลายครั้ง</td></tr>
+          <tr><td>13</td><td>Employee – updates – BuildStatusHistory</td><td>1:N</td><td>พนักงานหนึ่งคนอัปเดตได้หลายครั้ง</td></tr>
+          <tr><td>14</td><td>PCBuild – has – Shipment</td><td>1:N</td><td>อาจมีการจัดส่งมากกว่าหนึ่งครั้ง</td></tr>
+          <tr><td>15</td><td>SalesOrder – has – Shipment</td><td>1:N</td><td>อาจมีการจัดส่งมากกว่าหนึ่งครั้งเช่นกัน</td></tr>
+          <tr><td>16</td><td>Employee – performs – Shipment</td><td>1:N</td><td>พนักงานหนึ่งคนดำเนินการจัดส่งได้หลายครั้ง</td></tr>
+          <tr><td>17</td><td>SalesOrder – generates – Payment</td><td>1:N</td><td>อาจมีการจ่ายเงินหลายงวด</td></tr>
+          <tr><td>18</td><td>PCBuild – generates – Payment</td><td>1:N</td><td>อาจมีการจ่ายเงินหลายงวดเช่นกัน</td></tr>
+        </table>
+      </div>
+
+      <div class="note-box">
+        หมายเหตุสำคัญสำหรับตอนวาด ERD
+        <ul>
+          <li><code>OrderItem</code> และ <code>BuildItem</code> คือ associative entity ไม่ใช่ entity อิสระทั่วไป</li>
+          <li><code>Payment</code> และ <code>Shipment</code> มี FK สองเส้นแบบ "ต้องมีค่าอย่างใดอย่างหนึ่งเท่านั้น" (exclusive-or) ต้องเขียนกำกับ constraint นี้เพิ่มเติมจากตัวไดอะแกรม</li>
+          <li><code>assigned_technician_id</code> ใน PCBuild เป็น FK แบบ nullable</li>
+          <li><code>Employee.role</code> มี 4 ค่า (unassigned/staff/technician/admin) เป็น attribute ธรรมดาที่จำกัดค่าด้วย CHECK constraint ไม่ใช่ FK เฉพาะ admin เท่านั้นที่แก้ role ของคนอื่นได้ (Separation of Duties)</li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="s9">
+      <h2><span class="num">9</span> สรุปจำนวน Entity</h2>
+      <div class="summary-callout">
+        <div class="big">13 entities</div>
+        <p style="margin-top:8px; max-width: 50ch; margin-left:auto; margin-right:auto;">เกินเกณฑ์ 10 entity ที่อาจารย์กำหนด ทุกตัวมีเหตุผลรองรับการมีอยู่จริงในระบบ ไม่ได้ใส่มาเพื่อให้ครบจำนวนเฉยๆ</p>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script>
+  const sections = document.querySelectorAll('main section');
+  const links = document.querySelectorAll('.sidebar a');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        links.forEach(l => l.classList.remove('active'));
+        const active = document.querySelector(`.sidebar a[href="#${entry.target.id}"]`);
+        if (active) active.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px' });
+  sections.forEach(s => observer.observe(s));
+</script>
+</body>
+</html>

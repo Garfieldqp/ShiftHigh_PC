@@ -1,0 +1,29 @@
+<%# ฟอร์มเข้าสู่ระบบฝั่งลูกค้า %>
+<div class="max-w-sm mx-auto px-4 py-16">
+  <div class="card p-8">
+    <div class="text-center mb-6">
+      <img src="/images/logo.jpg" alt="Shift-High PC" class="h-24 w-24 rounded-xl object-cover mx-auto mb-3 ring-1 ring-gray-100" />
+      <h1 class="text-xl font-bold"><%= t('เข้าสู่ระบบลูกค้า') %></h1>
+    </div>
+
+    <% if (error) { %>
+      <div class="alert-error mb-4"><%= t(error) %></div>
+    <% } %>
+
+    <form method="POST" action="/auth/login" class="space-y-4">
+      <div>
+        <label class="field-label"><%= t('อีเมล') %></label>
+        <input name="email" type="email" placeholder="you@example.com" class="input <%= errorField === 'email' ? 'input-error' : '' %>" required />
+      </div>
+      <div>
+        <label class="field-label"><%= t('รหัสผ่าน') %></label>
+        <input name="password" type="password" placeholder="••••••••" class="input <%= errorField === 'password' ? 'input-error' : '' %>" required />
+      </div>
+      <button class="btn-primary w-full"><%= t('เข้าสู่ระบบ') %></button>
+    </form>
+
+    <p class="mt-5 text-center text-sm text-gray-500">
+      <%= t('ยังไม่มีบัญชี?') %> <a href="/auth/register" class="link"><%= t('สมัครสมาชิก') %></a>
+    </p>
+  </div>
+</div>

@@ -1,0 +1,93 @@
+<%# หน้ารายละเอียดสินค้า 1 ชิ้น - รูป + ราคา + ปุ่มใส่ตะกร้า + ตารางสเปคเต็ม %>
+<div class="max-w-5xl mx-auto px-4 py-10">
+  <a href="/products" class="link text-sm inline-flex items-center gap-1 mb-6">
+    <svg class="w-4 h-4" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 15l-5-5 5-5" /></svg>
+    <%= t('กลับไปหน้าสินค้า') %>
+  </a>
+
+  <% if (!product) { %>
+    <div class="empty-state"><p><%= t('ไม่พบสินค้า') %></p></div>
+  <% } else { %>
+    <% var specRows = parseSpecDetail(product.spec_detail); %>
+    <div class="card p-6 sm:p-8">
+      <!-- แถวบน: รูป + กล่องซื้อ (ชื่อ/ราคา/badge/ปุ่มใส่ตะกร้า) วางใกล้กันตามหลัก proximity
+           เพื่อให้ลูกค้าตัดสินใจซื้อได้จากการเลื่อนดูแค่ช่วงนี้ช่วงเดียว ไม่ต้องไล่ผ่านตารางสเปคยาวๆ ก่อนถึงปุ่ม -->
+      <div class="grid sm:grid-cols-2 gap-8 sm:items-start">
+        <%- include('../partials/product-thumb', { categoryName: categoryName(product.category_id), imageUrl: product.image_url, size: 'xl', isBuild: false, rounded: 'rounded-xl', showLabel: true }) %>
+        <div class="flex flex-col">
+          <% var brandLabel = brandName(product.brand_id); %>
+          <% if (brandLabel) { %>
+            <span class="text-xs font-semibold uppercase tracking-wide text-brand-600 mb-1.5"><%= brandLabel %></span>
+          <% } %>
+          <h1 class="text-2xl font-bold mb-2"><%= product.product_name %></h1>
+          <p class="text-brand-600 text-2xl font-bold mb-4"><%= product.price.toLocaleString() %> <%= t('บาท') %></p>
+
+          <div class="flex flex-wrap gap-2 mb-6">
+            <span class="<%= product.stock_quantity > 0 ? 'badge-green' : 'badge-red' %>">
+              <%= product.stock_quantity > 0 ? (lang === 'en' ? `${product.stock_quantity} in stock` : `เหลือ ${product.stock_quantity} ชิ้น`) : t('สินค้าหมด') %>
+            </span>
+            <% if (product.warranty_months) { %>
+              <span class="badge-gray"><%= t('รับประกัน') %> <%= product.warranty_months %> <%= t('เดือน') %></span>
+            <% } %>
+          </div>
+
+          <% if (customer) { %>
+            <form method="POST" action="/cart/add" class="flex items-center gap-3 mb-6">
+              <input type="hidden" name="product_id" value="<%= product.product_id %>" />
+              <input type="number" name="quantity" value="1" min="1" max="<%= product.stock_quantity %>" class="input-sm w-20" aria-label="<%= t('จำนวน') %>" />
+              <button class="btn-primary flex-1" <%= product.stock_quantity < 1 ? 'disabled' : '' %>>
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l3-8H5.4M7 13L5.4 5M7 13l-2.3 4.6A1 1 0 005.6 19H17M9 21a1 1 0 100-2 1 1 0 000 2zm8 0a1 1 0 100-2 1 1 0 000 2z" /></svg>
+                <%= product.stock_quantity < 1 ? t('สินค้าหมด') : t('ใส่ตะกร้า') %>
+              </button>
+            </form>
+          <% } else { %>
+            <a href="/auth/login" class="btn-primary w-full mb-6"><%= t('เข้าสู่ระบบเพื่อซื้อ') %></a>
+          <% } %>
+
+          <!-- จุดเด่น: หยิบสเปค 3 อันดับแรกมาสรุปย่อไว้ตรงนี้ ช่วยให้กล่องซื้อมีเนื้อหาเต็มพื้นที่แทนที่จะเหลือว่างจนดูขาดอะไรไป
+               (รายละเอียดสเปคครบทุกอันยังอยู่ในตารางเต็มด้านล่างเหมือนเดิม อันนี้เป็นแค่ทางลัดให้เห็นเร็วๆ) -->
+          <% if (specRows.length > 0) { %>
+            <div class="pt-5 border-t border-gray-100">
+              <h2 class="control-label mb-2.5"><%= t('จุดเด่น') %></h2>
+              <ul class="space-y-2">
+                <% specRows.slice(0, 3).forEach(function(row) { %>
+                  <li class="flex items-start gap-2 text-sm text-gray-600">
+                    <svg class="w-4 h-4 text-brand-500 shrink-0 mt-0.5" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 10l3 3 7-7" /></svg>
+                    <% if (row.label) { %>
+                      <span><span class="text-gray-500"><%= t(row.label) %>:</span> <span class="text-gray-900 font-medium"><%= t(row.value) %></span></span>
+                    <% } else { %>
+                      <span class="text-gray-900"><%= t(row.value) %></span>
+                    <% } %>
+                  </li>
+                <% }); %>
+              </ul>
+            </div>
+          <% } %>
+        </div>
+      </div>
+
+      <!-- ตารางสเปคเต็มความกว้างการ์ด แยกเป็นข้อมูลอ้างอิงรอง (progressive disclosure) ไม่แย่งพื้นที่กับส่วนตัดสินใจซื้อด้านบน -->
+      <% if (specRows.length > 0) { %>
+        <div class="mt-8 pt-6 border-t border-gray-100">
+          <h2 class="section-title mb-3"><%= t('รายละเอียดสเปค') %></h2>
+          <div class="border border-gray-100 rounded-xl overflow-hidden">
+            <table class="w-full text-sm">
+              <tbody class="divide-y divide-gray-100">
+                <% specRows.forEach(function(row, i) { %>
+                  <tr class="<%= i % 2 === 0 ? 'bg-gray-50/60' : '' %>">
+                    <% if (row.label) { %>
+                      <td class="px-4 py-2.5 text-gray-500 font-medium w-2/5 sm:w-1/3 align-top"><%= t(row.label) %></td>
+                      <td class="px-4 py-2.5 text-gray-900"><%= t(row.value) %></td>
+                    <% } else { %>
+                      <td colspan="2" class="px-4 py-2.5 text-gray-600"><%= t(row.value) %></td>
+                    <% } %>
+                  </tr>
+                <% }); %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      <% } %>
+    </div>
+  <% } %>
+</div>

@@ -1,0 +1,80 @@
+<%# หน้าจัดการสต็อกสินค้า (ฝั่ง staff/admin) - ค้นหาสินค้าแล้วปรับจำนวน (เติมของ/แก้ยอด) %>
+<%- include('../partials/staff-nav', { currentNav: 'stock' }) %>
+<div class="max-w-5xl mx-auto px-4 pb-16">
+  <h1 class="page-title mb-6"><%= t('จัดการสต็อก') %></h1>
+
+  <div class="relative mb-5">
+    <svg class="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="9" r="6" /><path stroke-linecap="round" d="M17 17l-4-4" /></svg>
+    <input id="stock-search" type="text" placeholder="<%= t('ค้นหาชื่อสินค้าที่จะปรับสต็อก...') %>" class="input pl-10" autofocus />
+  </div>
+
+  <div id="no-result" class="empty-state py-16" hidden>
+    <svg class="w-12 h-12 mb-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="10" cy="10" r="6" /><path stroke-linecap="round" d="M20 20l-4.5-4.5" /></svg>
+    <p><%= t('ไม่พบสินค้าที่ค้นหา') %></p>
+  </div>
+
+  <% if (products.length === 0) { %>
+    <div class="empty-state py-16">
+      <p><%= t('ยังไม่มีสินค้าในระบบ') %></p>
+    </div>
+  <% } else { %>
+    <div id="stock-list" class="card divide-y divide-gray-100">
+      <% products.forEach(function(p) { %>
+        <div class="stock-row flex items-center justify-between p-4 sm:p-5 flex-wrap gap-3" data-name="<%= p.product_name.toLowerCase() %>">
+          <div class="flex items-center gap-3 min-w-0">
+            <%- include('../partials/product-thumb', { categoryName: categoryName(p.category_id), imageUrl: p.image_url, size: 'sm', isBuild: false }) %>
+            <div class="min-w-0">
+              <div class="font-medium text-gray-900 truncate"><%= p.product_name %></div>
+              <div class="text-sm text-gray-500"><%= t('คงเหลือ') %>: <span class="font-medium text-gray-700"><%= p.stock_quantity %></span> <%= t('ชิ้น') %></div>
+            </div>
+          </div>
+          <form method="POST" action="/staff/stock/adjust" class="flex items-center gap-2 stock-adjust-form flex-wrap">
+            <input type="hidden" name="product_id" value="<%= p.product_id %>" />
+            <select name="adjustment_type" class="adjustment-type select-sm">
+              <option value="restock"><%= t('รับเข้า (+จำนวน)') %></option>
+              <option value="correction"><%= t('แก้ไขยอด (=จำนวน)') %></option>
+            </select>
+            <input type="number" name="value" class="value-input input-sm w-32" placeholder="<%= t('+จำนวนที่รับเข้า') %>" required />
+            <input name="note" placeholder="<%= t('หมายเหตุ') %>" class="input-sm w-32" />
+            <button class="btn-outline btn-sm"><%= t('ปรับสต็อก') %></button>
+          </form>
+        </div>
+      <% }); %>
+    </div>
+  <% } %>
+</div>
+
+<script>
+  // เปลี่ยน placeholder ตามความหมายจริงของแต่ละแบบ กันสับสนว่ากรอกจำนวนที่เพิ่ม หรือยอดที่ถูกต้อง
+  var PLACEHOLDER_RESTOCK = <%- JSON.stringify(t('+จำนวนที่รับเข้า')) %>;
+  var PLACEHOLDER_CORRECTION = <%- JSON.stringify(t('ยอดที่ถูกต้อง')) %>;
+  document.querySelectorAll('.stock-adjust-form').forEach(function (form) {
+    const select = form.querySelector('.adjustment-type');
+    const input = form.querySelector('.value-input');
+    function updatePlaceholder() {
+      input.placeholder = select.value === 'correction' ? PLACEHOLDER_CORRECTION : PLACEHOLDER_RESTOCK;
+    }
+    select.addEventListener('change', updatePlaceholder);
+    updatePlaceholder();
+  });
+
+  // ค้นหาสินค้าด้วยชื่อ ไม่ต้องแยกหมวดหมู่ เพราะพนักงานที่ลงสต็อกรู้ชื่อสินค้าอยู่แล้ว
+  (function () {
+    const list = document.getElementById('stock-list');
+    if (!list) return;
+    const rows = [...list.querySelectorAll('.stock-row')];
+    const noResult = document.getElementById('no-result');
+    const search = document.getElementById('stock-search');
+
+    search.addEventListener('input', function () {
+      const q = search.value.trim().toLowerCase();
+      let visibleCount = 0;
+      rows.forEach(function (row) {
+        const match = !q || row.dataset.name.includes(q);
+        row.hidden = !match;
+        if (match) visibleCount++;
+      });
+      noResult.hidden = visibleCount > 0;
+    });
+  })();
+</script>

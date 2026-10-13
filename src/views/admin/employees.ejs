@@ -1,0 +1,99 @@
+<%# หน้าจัดการพนักงาน (เฉพาะ admin) - อนุมัติสมัครใหม่, เปลี่ยน role, ปิด/เปิดบัญชี %>
+<%- include('../partials/admin-nav', { currentNav: 'employees' }) %>
+<div class="max-w-5xl mx-auto px-4 pb-16">
+  <h1 class="page-title mb-2"><%= t('จัดการพนักงาน') %></h1>
+  <p class="text-sm text-gray-500 mb-8"><%= t('อนุมัติ / เปลี่ยน role / ปิดการใช้งานบัญชี - หน้านี้ admin เท่านั้นที่เข้าได้ (Separation of Duties)') %></p>
+
+  <%
+    // แบ่งกลุ่ม: ปิดใช้งาน > รออนุมัติ > ใช้งานปกติ (เรียงตามลำดับความสำคัญ กันพนักงานคนเดียวไปอยู่ 2 กลุ่ม)
+    const disabledEmployees = employees.filter((e) => !e.is_active);
+    const pendingEmployees = employees.filter((e) => e.is_active && e.role === 'unassigned');
+    const activeEmployees = employees.filter((e) => e.is_active && e.role !== 'unassigned');
+  %>
+
+  <h2 class="section-title mb-3"><%= t('พนักงานทั้งหมด (ยืนยันแล้ว)') %></h2>
+  <% if (activeEmployees.length === 0) { %>
+    <div class="card empty-state mb-10 py-8"><p><%= t('ยังไม่มีพนักงานที่ยืนยันแล้ว') %></p></div>
+  <% } else { %>
+    <div class="card divide-y divide-gray-100 mb-10">
+      <% activeEmployees.forEach(function(e) { %>
+        <div class="flex items-center justify-between p-4 sm:p-5 gap-4 flex-wrap">
+          <div>
+            <div class="font-medium text-gray-900"><%= e.full_name %> <span class="text-xs text-gray-400">(<%= e.email %>)</span></div>
+            <div class="flex items-center gap-2 mt-1">
+              <span class="<%= statusColor(e.role) %>"><%= t(statusLabel(e.role)) %></span>
+            </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <form method="POST" action="/admin/employees/<%= e.employee_id %>/role" class="flex items-center gap-2">
+              <select name="role" class="select-sm">
+                <option value="staff" <%= e.role === 'staff' ? 'selected' : '' %>>staff</option>
+                <option value="technician" <%= e.role === 'technician' ? 'selected' : '' %>>technician</option>
+                <option value="admin" <%= e.role === 'admin' ? 'selected' : '' %>>admin</option>
+              </select>
+              <button class="btn-outline btn-sm"><%= t('เปลี่ยน role') %></button>
+            </form>
+            <form method="POST" action="/admin/employees/<%= e.employee_id %>/disable">
+              <button class="btn-danger btn-sm"><%= t('ปิดการใช้งาน') %></button>
+            </form>
+          </div>
+        </div>
+      <% }); %>
+    </div>
+  <% } %>
+
+  <h2 class="section-title mb-3">
+    <%= t('พนักงานที่ปิดการใช้งาน') %>
+    <% if (disabledEmployees.length > 0) { %><span class="badge-red ml-1"><%= disabledEmployees.length %></span><% } %>
+  </h2>
+  <% if (disabledEmployees.length === 0) { %>
+    <div class="card empty-state mb-10 py-8"><p><%= t('ไม่มีบัญชีที่ปิดการใช้งานอยู่') %></p></div>
+  <% } else { %>
+    <div class="card divide-y divide-gray-100 mb-10">
+      <% disabledEmployees.forEach(function(e) { %>
+        <div class="flex items-center justify-between p-4 sm:p-5 gap-4 flex-wrap">
+          <div>
+            <div class="font-medium text-gray-900"><%= e.full_name %> <span class="text-xs text-gray-400">(<%= e.email %>)</span></div>
+            <div class="flex items-center gap-2 mt-1">
+              <span class="<%= statusColor(e.role) %>"><%= t(statusLabel(e.role)) %></span>
+              <span class="badge-red"><%= t('ปิดการใช้งาน') %></span>
+            </div>
+          </div>
+          <!-- บัญชีถูกปิดอยู่ - ต้องเปิดใช้งานก่อน ถึงจะปรับ role ได้ (ปรับ role บัญชีที่ปิดไปก็ไม่มีความหมาย) -->
+          <form method="POST" action="/admin/employees/<%= e.employee_id %>/enable">
+            <button class="btn-primary btn-sm"><%= t('เปิดใช้งานบัญชี') %></button>
+          </form>
+        </div>
+      <% }); %>
+    </div>
+  <% } %>
+
+  <h2 class="section-title mb-3">
+    <%= t('รออนุมัติ') %>
+    <% if (pendingEmployees.length > 0) { %><span class="badge-amber ml-1"><%= pendingEmployees.length %></span><% } %>
+  </h2>
+  <% if (pendingEmployees.length === 0) { %>
+    <div class="card empty-state py-8"><p><%= t('ไม่มีพนักงานรออนุมัติ') %></p></div>
+  <% } else { %>
+    <div class="card divide-y divide-gray-100">
+      <% pendingEmployees.forEach(function(e) { %>
+        <div class="flex items-center justify-between p-4 sm:p-5 gap-4 flex-wrap">
+          <div>
+            <div class="font-medium text-gray-900"><%= e.full_name %> <span class="text-xs text-gray-400">(<%= e.email %>)</span></div>
+            <div class="flex items-center gap-2 mt-1">
+              <span class="<%= statusColor(e.role) %>"><%= t(statusLabel(e.role)) %></span>
+            </div>
+          </div>
+          <form method="POST" action="/admin/employees/<%= e.employee_id %>/approve" class="flex items-center gap-2">
+            <select name="role" class="select-sm">
+              <option value="staff">staff</option>
+              <option value="technician">technician</option>
+              <option value="admin">admin</option>
+            </select>
+            <button class="btn-primary btn-sm"><%= t('อนุมัติ') %></button>
+          </form>
+        </div>
+      <% }); %>
+    </div>
+  <% } %>
+</div>

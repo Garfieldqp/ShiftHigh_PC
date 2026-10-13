@@ -1,0 +1,50 @@
+<%# หน้ารายงานยอดขาย + สินค้าขายดี (ฝั่ง staff/admin) %>
+<%- include('../partials/staff-nav', { currentNav: 'reports' }) %>
+<div class="max-w-5xl mx-auto px-4 pb-16">
+  <h1 class="page-title mb-8"><%= t('รายงานยอดขาย') %></h1>
+
+  <div class="grid sm:grid-cols-2 gap-4 mb-10">
+    <div class="card p-6">
+      <div class="text-sm text-gray-500 mb-1"><%= t('ยอดขายรวม') %></div>
+      <div class="text-3xl font-bold text-brand-600"><%= report.total_revenue.toLocaleString() %> <span class="text-lg font-medium text-gray-400"><%= t('บาท') %></span></div>
+    </div>
+    <div class="card p-6">
+      <div class="text-sm text-gray-500 mb-1"><%= t('จำนวนคำสั่งซื้อที่จ่ายแล้ว (รวมงานจัดสเปคคอม)') %></div>
+      <div class="text-3xl font-bold text-gray-900"><%= report.total_orders %></div>
+    </div>
+  </div>
+
+  <div class="grid sm:grid-cols-2 gap-6">
+    <div>
+      <h2 class="section-title mb-3"><%= t('สินค้าขายดี (ตามจำนวนชิ้น)') %></h2>
+      <div class="card divide-y divide-gray-100">
+        <% if (report.best_selling_products.length === 0) { %>
+          <p class="p-5 text-sm text-gray-400"><%= t('ยังไม่มีข้อมูลการขาย') %></p>
+        <% } %>
+        <% report.best_selling_products.forEach(function(p, i) { %>
+          <div class="flex items-center gap-3 px-5 py-3.5">
+            <span class="h-7 w-7 rounded-full bg-brand-50 text-brand-600 text-xs font-bold flex items-center justify-center shrink-0"><%= i + 1 %></span>
+            <span class="flex-1 text-sm font-medium text-gray-900 min-w-0 truncate"><%= p.product_name %></span>
+            <span class="text-sm text-gray-500 whitespace-nowrap"><%= t('ขายไป') %> <%= p.total_sold %> <%= t('ชิ้น') %></span>
+          </div>
+        <% }); %>
+      </div>
+    </div>
+
+    <div>
+      <h2 class="section-title mb-3"><%= t('สินค้าทำรายได้สูงสุด') %></h2>
+      <div class="card divide-y divide-gray-100">
+        <% if (report.top_revenue_products.length === 0) { %>
+          <p class="p-5 text-sm text-gray-400"><%= t('ยังไม่มีข้อมูลการขาย') %></p>
+        <% } %>
+        <% report.top_revenue_products.forEach(function(p, i) { %>
+          <div class="flex items-center gap-3 px-5 py-3.5">
+            <span class="h-7 w-7 rounded-full bg-emerald-50 text-emerald-600 text-xs font-bold flex items-center justify-center shrink-0"><%= i + 1 %></span>
+            <span class="flex-1 text-sm font-medium text-gray-900 min-w-0 truncate"><%= p.product_name %></span>
+            <span class="text-sm text-gray-500 whitespace-nowrap"><%= p.revenue.toLocaleString() %> <%= t('บาท') %></span>
+          </div>
+        <% }); %>
+      </div>
+    </div>
+  </div>
+</div>

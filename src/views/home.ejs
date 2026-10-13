@@ -1,0 +1,130 @@
+<%# หน้าแรกของเว็บ: hero (เคสคอมโผล่จากความมืดพร้อมแสงส้มด้านหลัง) + การ์ดหมวดหมู่จากฐานข้อมูล + ขั้นตอนสั่งประกอบคอม
+    ข้อมูลที่ใช้มาจาก app.ts: categoryTiles (หมวดหมู่ + จำนวน + ราคาเริ่มต้น + รูป), heroProduct (สินค้าในรูป hero), productCount %>
+<%
+  const fmt = (n) => Number(n).toLocaleString('en-US');
+  const categoryCount = categoryTiles.length;
+%>
+
+<!-- ===== Hero ===== -->
+<section class="relative overflow-hidden bg-carbon text-white">
+  <!-- แสงส้มด้านหลังเคส (ตกแต่ง) -->
+  <div aria-hidden="true" class="pointer-events-none absolute inset-0">
+    <div class="absolute right-[-30%] sm:right-[-10%] lg:right-[0%] top-[30%] lg:top-[8%] h-[520px] w-[520px] sm:h-[720px] sm:w-[720px] rounded-full bg-[radial-gradient(closest-side,rgba(245,130,31,0.42),rgba(245,130,31,0.12)_55%,transparent)] blur-2xl animate-glow"></div>
+  </div>
+
+  <div class="relative max-w-6xl mx-auto px-4">
+    <div class="grid lg:grid-cols-2 items-center gap-10 lg:gap-4 min-h-[calc(100svh-4rem-88px)] py-14 lg:py-10">
+      <div class="max-w-xl animate-fadein">
+        <h1 class="font-display font-light leading-[1.2] tracking-tight text-[clamp(2.5rem,5.4vw,4.6rem)]">
+          <span class="block whitespace-nowrap"><%= t('ประกอบคอม') %></span>
+          <span class="block whitespace-nowrap"><%= t('ตามสเปค') %></span>
+          <span class="block whitespace-nowrap"><%= t('ที่คุณเลือก') %></span>
+        </h1>
+        <div class="mt-7 h-px w-16 bg-brand-500"></div>
+        <p class="mt-7 max-w-md text-base leading-relaxed text-titanium font-light">
+          <% if (lang === 'en') { %>
+            <%= productCount %> products across <%= categoryCount %> categories, assembled and tested by our technicians. Follow every step until it reaches you.
+          <% } else { %>
+            สินค้า <%= productCount %> รายการ ครบ <%= categoryCount %> หมวด ช่างของร้านประกอบและทดสอบให้ทุกเครื่อง ติดตามสถานะได้ทุกขั้นจนของถึงมือ
+          <% } %>
+        </p>
+        <div class="mt-10 flex flex-wrap items-center gap-x-8 gap-y-4">
+          <a href="/build" class="btn px-7 py-3 bg-white text-carbon hover:bg-brand-500 transition-colors"><%= t('เริ่มจัดสเปค') %></a>
+          <a href="/products" class="text-sm tracking-wide text-gray-300 hover:text-white underline underline-offset-8 decoration-white/25 hover:decoration-brand-500 transition-colors"><%= t('ดูสินค้าทั้งหมด') %></a>
+        </div>
+      </div>
+
+      <!-- ฉาก: เคสคอม + เงาสะท้อนบนพื้น -->
+      <div class="relative w-full">
+        <a href="<%= heroProduct ? '/products/' + heroProduct.product_id : '/products' %>" class="relative mx-auto block w-[64%] sm:w-[52%] lg:w-[70%] max-w-[380px] focus-visible:ring-offset-carbon" aria-label="<%= heroProduct ? heroProduct.product_name : t('ดูสินค้าทั้งหมด') %>">
+          <div class="relative overflow-hidden animate-reveal">
+            <img src="/images/hero/case.png" alt="<%= heroProduct ? heroProduct.product_name : '' %>" class="w-full h-auto" />
+            <!-- แสงกวาดผ่านครั้งเดียว -->
+            <span aria-hidden="true" class="pointer-events-none absolute inset-y-0 left-0 w-1/3 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-sweep"></span>
+          </div>
+          <!-- เงาสะท้อนบนพื้นมัน -->
+          <div aria-hidden="true" class="h-24 sm:h-28 overflow-hidden animate-reveal">
+            <img src="/images/hero/case.png" alt="" class="w-full h-auto -scale-y-100 opacity-[0.16] [mask-image:linear-gradient(to_top,rgba(0,0,0,1),transparent_92%)]" />
+          </div>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- แถบข้อมูลสินค้าในภาพ (ข้อมูลจริงจากฐานข้อมูล) -->
+  <% if (heroProduct) { %>
+    <div class="relative border-t border-white/[0.08]">
+      <div class="max-w-6xl mx-auto px-4 grid grid-cols-2 sm:grid-cols-4 text-sm">
+        <div class="py-5 pr-4 col-span-2 sm:col-span-1 border-b sm:border-b-0 border-white/[0.08]">
+          <div class="text-xs text-titanium"><%= t('ในภาพ') %></div>
+          <div class="mt-1 font-display text-white"><%= heroProduct.product_name %></div>
+        </div>
+        <div class="py-5 sm:pl-6 sm:border-l border-white/[0.08]">
+          <div class="text-xs text-titanium"><%= t('ราคา') %></div>
+          <div class="mt-1 font-display text-white"><%= fmt(heroProduct.price) %> <%= t('บาท') %></div>
+        </div>
+        <div class="py-5 pl-6 border-l border-white/[0.08]">
+          <div class="text-xs text-titanium"><%= t('รับประกัน') %></div>
+          <div class="mt-1 font-display text-white"><%= heroProduct.warranty_months ? (lang === 'en' ? `${heroProduct.warranty_months} months` : `${heroProduct.warranty_months} เดือน`) : '-' %></div>
+        </div>
+        <a href="/products/<%= heroProduct.product_id %>" class="col-span-2 sm:col-span-1 py-5 sm:pl-6 sm:border-l border-t sm:border-t-0 border-white/[0.08] flex items-center justify-between gap-3 text-gray-300 hover:text-brand-400 transition-colors">
+          <span><%= t('ดูรายละเอียด') %></span>
+          <svg class="w-4 h-4" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M4 10h12m0 0l-4-4m4 4l-4 4" /></svg>
+        </a>
+      </div>
+    </div>
+  <% } %>
+</section>
+
+<!-- ===== หมวดหมู่สินค้า ===== -->
+<section class="max-w-6xl mx-auto px-4 pt-20 sm:pt-28">
+  <div class="flex items-end justify-between gap-4 mb-10">
+    <h2 class="font-display text-3xl sm:text-4xl font-light tracking-tight text-carbon"><%= t('เลือกตามหมวด') %></h2>
+    <a href="/products" class="text-sm text-gray-600 hover:text-carbon underline underline-offset-8 decoration-black/20 hover:decoration-brand-500 whitespace-nowrap"><%= t('ดูสินค้าทั้งหมด') %></a>
+  </div>
+  <div class="grid grid-cols-2 lg:grid-cols-4 gap-x-4 gap-y-10 sm:gap-x-6">
+    <% categoryTiles.forEach(function(c) { %>
+      <a href="/products?category_id=<%= c.category_id %>" class="group block">
+        <div class="overflow-hidden rounded-2xl bg-white">
+          <div class="transition-transform duration-500 ease-out group-hover:scale-[1.04]">
+            <%- include('partials/product-thumb', { categoryName: c.category_name, imageUrl: c.image_url, size: 'lg', isBuild: false, rounded: 'rounded-none' }) %>
+          </div>
+        </div>
+        <div class="mt-4 flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-x-2">
+          <span class="font-display text-lg text-carbon"><%= t(c.category_name) %></span>
+          <span class="text-xs text-gray-500"><%= lang === 'en' ? `${c.count} items` : `${c.count} รายการ` %></span>
+        </div>
+        <% if (c.minPrice !== null) { %>
+          <div class="mt-0.5 text-sm text-gray-500"><%= lang === 'en' ? `From ${fmt(c.minPrice)} THB` : `เริ่มต้น ${fmt(c.minPrice)} บาท` %></div>
+        <% } %>
+      </a>
+    <% }); %>
+  </div>
+</section>
+
+<!-- ===== ขั้นตอนสั่งประกอบคอม (ตรงกับสถานะของ pc_build จริง) ===== -->
+<section class="max-w-6xl mx-auto px-4 pt-24 sm:pt-32">
+  <div class="grid lg:grid-cols-[1fr_2fr] gap-10 lg:gap-16">
+    <div>
+      <h2 class="font-display text-3xl sm:text-4xl font-light tracking-tight text-carbon"><%= t('สั่งประกอบคอมใน 4 ขั้น') %></h2>
+      <a href="/build" class="btn-primary mt-8 px-7 py-3"><%= t('เริ่มจัดสเปค') %></a>
+    </div>
+    <%
+      const steps = [
+        ['เลือกอะไหล่', 'เลือกทีละหมวด ระบบรวมราคาให้ แล้วบันทึกเป็นสเปคไว้ก่อนได้'],
+        ['ชำระเงิน', 'จ่ายผ่านตะกร้าพร้อมสินค้าอื่น โอนเงินหรือเก็บเงินปลายทาง'],
+        ['ช่างประกอบ', 'ช่างรับงานจากคิว ประกอบและทดสอบเครื่อง ทุกครั้งที่สถานะเปลี่ยนคุณจะเห็นทันที'],
+        ['จัดส่ง', 'แพ็กและส่งถึงที่อยู่ที่ระบุ ดูเลขพัสดุได้ในหน้าคำสั่งซื้อ'],
+      ];
+    %>
+    <ol class="divide-y divide-black/[0.08] border-y border-black/[0.08]">
+      <% steps.forEach(function(s, i) { %>
+        <li class="grid grid-cols-[3rem_1fr] sm:grid-cols-[4rem_12rem_1fr] gap-x-4 gap-y-1 py-6">
+          <span class="font-display text-sm text-brand-600 pt-1"><%= String(i + 1).padStart(2, '0') %></span>
+          <h3 class="font-display text-lg font-normal text-carbon"><%= t(s[0]) %></h3>
+          <p class="col-start-2 sm:col-start-auto text-sm leading-relaxed text-gray-600"><%= t(s[1]) %></p>
+        </li>
+      <% }); %>
+    </ol>
+  </div>
+</section>

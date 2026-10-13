@@ -1,0 +1,43 @@
+<%# หน้าติดตามสถานะงานจัดสเปคคอม 1 งาน - โชว์ timeline ประวัติการเปลี่ยนสถานะ %>
+<div class="max-w-2xl mx-auto px-4 py-10">
+  <% if (!build) { %>
+    <div class="empty-state"><p><%= t('ไม่พบงานนี้') %></p></div>
+  <% } else { %>
+    <div class="flex items-center justify-between mb-2">
+      <h1 class="page-title"><%= build.build_name %></h1>
+      <span class="<%= statusColor(build.status) %>"><%= t(statusLabel(build.status)) %></span>
+    </div>
+    <p class="text-gray-500 mb-8"><%= t('สั่งเมื่อ') %> <%= new Date(build.build_date).toLocaleDateString(lang === 'en' ? 'en-GB' : 'th-TH') %></p>
+
+    <h2 class="section-title mb-3"><%= t('อะไหล่ในชุดนี้') %></h2>
+    <div class="card divide-y divide-gray-100 mb-4">
+      <% items.forEach(function(item) { %>
+        <div class="flex items-center justify-between px-4 sm:px-5 py-3 text-sm">
+          <span class="text-gray-700"><%= item.product_name %> × <%= item.quantity %></span>
+          <span class="font-medium"><%= (item.unit_price * item.quantity).toLocaleString() %> <%= t('บาท') %></span>
+        </div>
+      <% }); %>
+      <div class="flex items-center justify-between px-4 sm:px-5 py-3.5 bg-gray-50 rounded-b-2xl">
+        <span class="font-semibold"><%= t('รวม') %></span>
+        <span class="font-bold text-brand-600"><%= build.total_price.toLocaleString() %> <%= t('บาท') %></span>
+      </div>
+    </div>
+
+    <h2 class="section-title mb-3 mt-8"><%= t('ประวัติสถานะ') %></h2>
+    <div class="card p-5">
+      <ol class="relative border-l-2 border-brand-100 pl-5 space-y-5">
+        <% if (history.length === 0) { %>
+          <li class="text-sm text-gray-400"><%= t('ยังไม่มีการอัปเดตสถานะ (รอช่างรับงาน)') %></li>
+        <% } %>
+        <% history.forEach(function(h) { %>
+          <li class="relative">
+            <span class="absolute -left-[1.65rem] top-1 h-3 w-3 rounded-full bg-brand-500 ring-4 ring-brand-50"></span>
+            <div class="font-medium text-gray-900"><%= t(statusLabel(h.status)) %></div>
+            <div class="text-xs text-gray-400"><%= new Date(h.updated_at).toLocaleString(lang === 'en' ? 'en-GB' : 'th-TH') %></div>
+            <% if (h.note) { %><div class="text-sm text-gray-500 mt-0.5"><%= t(h.note) %></div><% } %>
+          </li>
+        <% }); %>
+      </ol>
+    </div>
+  <% } %>
+</div>

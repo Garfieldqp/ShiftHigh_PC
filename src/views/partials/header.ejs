@@ -1,0 +1,132 @@
+<%# ส่วน header บนสุดของเว็บ (โลโก้ + เมนูนำทาง + สถานะ login + สลับภาษา) ใช้ร่วมกันทุกหน้า %>
+<header class="sticky top-0 z-30 bg-carbon text-white border-b border-white/[0.08]">
+  <div class="w-full px-4 sm:px-8 lg:px-12 h-16 flex items-center justify-between gap-4 lg:grid lg:grid-cols-[1fr_auto_1fr] lg:gap-8">
+    <a href="/" class="flex items-center gap-2.5 shrink-0 group justify-self-start">
+      <img src="/images/logo.jpg" alt="Shift-High PC" class="h-9 w-9 rounded-lg object-cover ring-1 ring-white/10 transition-transform group-hover:scale-105" />
+      <span class="font-display text-[15px] font-medium tracking-[0.14em] text-white hidden sm:inline">SHIFT-HIGH <span class="text-brand-500">PC</span></span>
+    </a>
+
+    <!-- เมนูเดสก์ท็อป (จอกว้าง >= lg): แบ่ง 3 ช่อง โลโก้ชิดซ้าย | เมนูหลักอยู่กลางจอพอดี | บัญชี/ภาษาชิดขวา
+         nav ใช้ display: contents ให้กลุ่มเมนูกับกลุ่มบัญชีข้างในไปเป็นช่องที่ 2 และ 3 ของ grid ด้านบนโดยตรง -->
+    <nav class="hidden lg:contents text-sm">
+      <div class="flex items-center gap-1 justify-self-center">
+      <a href="/products" class="px-3 py-2 rounded-lg text-gray-300 hover:bg-white/10 hover:text-white transition-colors whitespace-nowrap"><%= t('สินค้า') %></a>
+      <a href="/build" class="px-3 py-2 rounded-lg text-gray-300 hover:bg-white/10 hover:text-white transition-colors whitespace-nowrap"><%= t('จัดสเปคคอม') %></a>
+
+      <% if (customer) { %>
+        <a href="/cart" class="px-3 py-2 rounded-lg text-gray-300 hover:bg-white/10 hover:text-white transition-colors whitespace-nowrap"><%= t('ตะกร้า') %></a>
+        <a href="/orders" class="px-3 py-2 rounded-lg text-gray-300 hover:bg-white/10 hover:text-white transition-colors whitespace-nowrap"><%= t('คำสั่งซื้อ') %></a>
+      <% } %>
+
+      <% if (employee) { %>
+        <span class="mx-0.5 h-5 w-px bg-white/15"></span>
+        <% if (employee.role === 'technician') { %>
+          <a href="/technician/queue" class="px-3 py-2 rounded-lg text-gray-300 hover:bg-white/10 hover:text-white transition-colors whitespace-nowrap"><%= t('คิวงานช่าง') %></a>
+        <% } %>
+        <% if (employee.role === 'staff' || employee.role === 'admin') { %>
+          <a href="/staff/orders" class="px-3 py-2 rounded-lg text-gray-300 hover:bg-white/10 hover:text-white transition-colors whitespace-nowrap"><%= t('จัดการร้าน') %></a>
+        <% } %>
+        <% if (employee.role === 'admin') { %>
+          <a href="/admin/products" class="px-3 py-2 rounded-lg text-gray-300 hover:bg-white/10 hover:text-white transition-colors whitespace-nowrap"><%= t('แอดมิน') %></a>
+        <% } %>
+      <% } %>
+
+      </div>
+
+      <div class="flex items-center gap-1 justify-self-end">
+
+      <% if (customer) { %>
+        <a href="/account" class="p-2 rounded-lg text-gray-300 hover:bg-white/10 hover:text-brand-400 transition-colors" title="<%= t('บัญชีของฉัน') %>" aria-label="<%= t('บัญชีของฉัน') %>">
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="4" /><path stroke-linecap="round" d="M4 20c0-4 4-6 8-6s8 2 8 6" /></svg>
+        </a>
+        <span class="hidden xl:inline px-1 text-gray-400 text-xs whitespace-nowrap"><%= customer.email %></span>
+        <form method="POST" action="/auth/logout" class="inline">
+          <button class="px-3 py-2 rounded-lg text-gray-300 hover:bg-white/10 hover:text-white transition-colors whitespace-nowrap"><%= t('ออกจากระบบ') %></button>
+        </form>
+      <% } else if (!employee) { %>
+        <a href="/auth/login" class="px-3 py-2 rounded-lg text-gray-300 hover:bg-white/10 hover:text-white transition-colors whitespace-nowrap"><%= t('เข้าสู่ระบบ') %></a>
+        <a href="/auth/register" class="btn btn-sm ml-1 whitespace-nowrap bg-white text-carbon hover:bg-neutral-200"><%= t('สมัครสมาชิก') %></a>
+      <% } %>
+
+      <% if (employee) { %>
+        <a href="/staff/account" class="p-2 rounded-lg text-gray-300 hover:bg-white/10 hover:text-brand-400 transition-colors" title="<%= t('บัญชีของฉัน') %>" aria-label="<%= t('บัญชีของฉัน') %>">
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="4" /><path stroke-linecap="round" d="M4 20c0-4 4-6 8-6s8 2 8 6" /></svg>
+        </a>
+        <span class="hidden xl:inline px-1 text-gray-400 text-xs whitespace-nowrap">(<%= t(statusLabel(employee.role)) %>)</span>
+        <form method="POST" action="/staff/auth/logout" class="inline">
+          <button class="px-3 py-2 rounded-lg text-gray-300 hover:bg-white/10 hover:text-white transition-colors whitespace-nowrap"><%= t('ออกจากระบบ') %></button>
+        </form>
+      <% } %>
+
+      <span class="mx-0.5 h-5 w-px bg-white/15"></span>
+
+      <div class="flex items-center rounded-full border border-white/20 p-0.5 text-xs shrink-0" role="group" aria-label="Language / ภาษา">
+        <a href="/lang/th" class="px-2 py-1 rounded-full transition-colors <%= lang === 'th' ? 'bg-brand-500 text-carbon font-semibold' : 'text-gray-400 hover:text-white' %>">TH</a>
+        <a href="/lang/en" class="px-2 py-1 rounded-full transition-colors <%= lang === 'en' ? 'bg-brand-500 text-carbon font-semibold' : 'text-gray-400 hover:text-white' %>">EN</a>
+      </div>
+      </div>
+    </nav>
+
+    <!-- เมนูมือถือ/แท็บเล็ต (จอเล็กกว่า lg) - ใช้ details/summary ล้วนๆ ไม่ต้องพึ่ง JS เลย กดแฮมเบอร์เกอร์แล้วมีทุกลิงก์ให้เห็นชัดในแผงเดียว
+         ไม่ต้องเลื่อนซ้ายขวาหาแบบเมนูเดิมที่เป็น overflow-x-auto -->
+    <details class="lg:hidden relative shrink-0">
+      <summary class="list-none flex items-center justify-center h-10 w-10 rounded-md text-gray-200 hover:bg-white/10 cursor-pointer [&::-webkit-details-marker]:hidden" aria-label="Menu">
+        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 7h16M4 12h16M4 17h16" /></svg>
+      </summary>
+
+      <div class="fixed inset-0 top-16 z-40 bg-black/50" aria-hidden="true"></div>
+      <nav class="absolute right-0 top-full mt-2 w-72 max-w-[85vw] bg-graphite rounded-xl border border-white/10 shadow-2xl z-50 p-2 max-h-[calc(100vh-5rem)] overflow-y-auto">
+        <a href="/products" class="mobile-nav-link"><%= t('สินค้า') %></a>
+        <a href="/build" class="mobile-nav-link"><%= t('จัดสเปคคอม') %></a>
+
+        <% if (customer) { %>
+          <a href="/cart" class="mobile-nav-link"><%= t('ตะกร้า') %></a>
+          <a href="/orders" class="mobile-nav-link"><%= t('คำสั่งซื้อ') %></a>
+        <% } %>
+
+        <% if (employee) { %>
+          <% if (employee.role === 'technician') { %>
+            <a href="/technician/queue" class="mobile-nav-link"><%= t('คิวงานช่าง') %></a>
+          <% } %>
+          <% if (employee.role === 'staff' || employee.role === 'admin') { %>
+            <a href="/staff/orders" class="mobile-nav-link"><%= t('จัดการร้าน') %></a>
+          <% } %>
+          <% if (employee.role === 'admin') { %>
+            <a href="/admin/products" class="mobile-nav-link"><%= t('แอดมิน') %></a>
+          <% } %>
+        <% } %>
+
+        <div class="my-2 border-t border-white/10"></div>
+
+        <% if (customer) { %>
+          <div class="px-3 py-1.5 text-xs text-gray-400 truncate"><%= customer.email %></div>
+          <a href="/account" class="mobile-nav-link"><%= t('บัญชีของฉัน') %></a>
+          <form method="POST" action="/auth/logout">
+            <button class="mobile-nav-link w-full text-left"><%= t('ออกจากระบบ') %></button>
+          </form>
+        <% } else if (!employee) { %>
+          <a href="/auth/login" class="mobile-nav-link"><%= t('เข้าสู่ระบบ') %></a>
+          <a href="/auth/register" class="mobile-nav-link text-brand-400 font-medium"><%= t('สมัครสมาชิก') %></a>
+        <% } %>
+
+        <% if (employee) { %>
+          <div class="px-3 py-1.5 text-xs text-gray-400 truncate">(<%= t(statusLabel(employee.role)) %>)</div>
+          <a href="/staff/account" class="mobile-nav-link"><%= t('บัญชีของฉัน') %></a>
+          <form method="POST" action="/staff/auth/logout">
+            <button class="mobile-nav-link w-full text-left"><%= t('ออกจากระบบ') %></button>
+          </form>
+        <% } %>
+
+        <div class="my-2 border-t border-white/10"></div>
+
+        <div class="flex items-center gap-2 px-3 py-1.5">
+          <span class="text-xs text-gray-400"><%= t('ภาษา') %></span>
+          <div class="flex items-center rounded-full border border-white/20 p-0.5 text-xs" role="group" aria-label="Language / ภาษา">
+            <a href="/lang/th" class="px-2.5 py-1 rounded-full transition-colors <%= lang === 'th' ? 'bg-brand-500 text-carbon font-semibold' : 'text-gray-400' %>">TH</a>
+            <a href="/lang/en" class="px-2.5 py-1 rounded-full transition-colors <%= lang === 'en' ? 'bg-brand-500 text-carbon font-semibold' : 'text-gray-400' %>">EN</a>
+          </div>
+        </div>
+      </nav>
+    </details>
+  </div>
+</header>

@@ -1,0 +1,109 @@
+<%# หน้าตะกร้าสินค้า - แสดง/แก้จำนวน/ลบ ทั้งสินค้าปกติและชุดจัดสเปคคอม %>
+<div class="max-w-5xl mx-auto px-4 py-10">
+  <h1 class="page-title mb-6"><%= t('ตะกร้าสินค้า') %></h1>
+
+  <% if (error) { %>
+    <div class="alert-error mb-6"><%= t(error) %></div>
+  <% } %>
+
+  <% if (orphanedDraftBuilds.length > 0) { %>
+    <div class="rounded-2xl border border-amber-200 bg-amber-50 p-4 sm:p-5 mb-6">
+      <div class="flex items-center gap-2 mb-3">
+        <svg class="w-5 h-5 text-amber-500 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" /></svg>
+        <h2 class="font-semibold text-gray-900 text-sm"><%= t('มีสเปคคอมที่ยังไม่ได้ใส่ตะกร้า') %></h2>
+      </div>
+      <div class="space-y-2">
+        <% orphanedDraftBuilds.forEach(function(b) { %>
+          <div class="flex items-center justify-between gap-3 bg-white rounded-xl p-3 border border-amber-100">
+            <div class="min-w-0">
+              <div class="font-medium text-gray-900 truncate"><%= b.build_name %></div>
+              <div class="text-sm text-gray-500"><%= b.total_price.toLocaleString() %> <%= t('บาท') %></div>
+            </div>
+            <form method="POST" action="/cart/add-build" class="shrink-0">
+              <input type="hidden" name="build_id" value="<%= b.build_id %>" />
+              <button class="btn-primary btn-sm"><%= t('ใส่ตะกร้า') %></button>
+            </form>
+          </div>
+        <% }); %>
+      </div>
+    </div>
+  <% } %>
+
+  <% if (items.length === 0) { %>
+    <div class="empty-state">
+      <svg class="w-14 h-14 mb-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l3-8H5.4M7 13L5.4 5M7 13l-2.3 4.6A1 1 0 005.6 19H17M9 21a1 1 0 100-2 1 1 0 000 2zm8 0a1 1 0 100-2 1 1 0 000 2z" /></svg>
+      <p class="mb-4"><%= t('ตะกร้าว่างอยู่') %></p>
+      <a href="/products" class="btn-primary"><%= t('ไปเลือกซื้อสินค้า') %></a>
+    </div>
+  <% } else { %>
+    <% var itemCount = items.reduce(function(sum, i) { return sum + i.quantity; }, 0); %>
+    <% var subtotal = items.reduce(function(sum, i) { return sum + i.line_total; }, 0); %>
+    <div class="grid lg:grid-cols-[1fr_300px] gap-6 items-start">
+      <div class="card divide-y divide-gray-100">
+        <% items.forEach(function(item) { %>
+          <div class="flex items-center justify-between gap-4 p-4 sm:p-5">
+            <div class="flex items-center gap-4 min-w-0">
+              <%- include('../partials/product-thumb', {
+                categoryName: item.type === 'product' ? categoryName(item.category_id) : undefined,
+                imageUrl: item.image_url,
+                size: 'md',
+                isBuild: item.type === 'build',
+              }) %>
+              <div class="min-w-0">
+                <div class="font-medium text-gray-900 truncate">
+                  <%= t(item.name) %>
+                  <% if (item.type === 'build') { %><span class="badge-brand ml-1"><%= t('ชุดจัดสเปค') %></span><% } %>
+                </div>
+                <div class="text-sm text-gray-500 mb-1.5"><%= item.unit_price.toLocaleString() %> <%= t('บาท') %></div>
+                <% if (item.type === 'product') { %>
+                  <div class="flex items-center gap-1.5">
+                    <form method="POST" action="/cart/update">
+                      <input type="hidden" name="product_id" value="<%= item.ref_id %>" />
+                      <input type="hidden" name="quantity" value="<%= item.quantity - 1 %>" />
+                      <button class="qty-btn" aria-label="<%= t('ลดจำนวน') %>" <%= item.quantity <= 1 ? 'disabled' : '' %>>&minus;</button>
+                    </form>
+                    <span class="w-7 text-center text-sm font-medium text-gray-900"><%= item.quantity %></span>
+                    <form method="POST" action="/cart/update">
+                      <input type="hidden" name="product_id" value="<%= item.ref_id %>" />
+                      <input type="hidden" name="quantity" value="<%= item.quantity + 1 %>" />
+                      <button class="qty-btn" aria-label="<%= t('เพิ่มจำนวน') %>" <%= (item.stock_quantity !== undefined && item.quantity >= item.stock_quantity) ? 'disabled' : '' %>>+</button>
+                    </form>
+                  </div>
+                <% } %>
+              </div>
+            </div>
+            <div class="flex items-center gap-4 shrink-0">
+              <div class="font-bold text-gray-900"><%= item.line_total.toLocaleString() %> <%= t('บาท') %></div>
+              <form method="POST" action="/cart/remove">
+                <input type="hidden" name="type" value="<%= item.type %>" />
+                <input type="hidden" name="ref_id" value="<%= item.ref_id %>" />
+                <button class="text-gray-400 hover:text-red-500 transition-colors" title="<%= t('ลบออกจากตะกร้า') %>" aria-label="<%= t('ลบออกจากตะกร้า') %>">
+                  <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M6 6l12 12M18 6L6 18" /></svg>
+                </button>
+              </form>
+            </div>
+          </div>
+        <% }); %>
+      </div>
+
+      <div class="lg:sticky lg:top-20 space-y-3">
+        <div class="card p-5">
+          <h2 class="section-title mb-4"><%= t('สรุปคำสั่งซื้อ') %></h2>
+          <div class="flex items-center justify-between text-sm text-gray-500 mb-3">
+            <span><%= t('จำนวนสินค้า') %></span>
+            <span><%= itemCount %> <%= t('ชิ้น') %></span>
+          </div>
+          <div class="flex items-center justify-between font-bold text-gray-900 pt-3 border-t border-gray-100 mb-4">
+            <span><%= t('ยอดรวม') %></span>
+            <span class="text-lg"><%= subtotal.toLocaleString() %> <%= t('บาท') %></span>
+          </div>
+          <a href="/checkout" class="btn-primary w-full block text-center"><%= t('ไปชำระเงิน') %></a>
+        </div>
+        <a href="/products" class="link text-sm inline-flex items-center gap-1">
+          <svg class="w-4 h-4" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 15l-5-5 5-5" /></svg>
+          <%= t('เลือกซื้อสินค้าต่อ') %>
+        </a>
+      </div>
+    </div>
+  <% } %>
+</div>

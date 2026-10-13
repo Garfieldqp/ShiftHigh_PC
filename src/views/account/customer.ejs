@@ -1,0 +1,68 @@
+<%# หน้า "บัญชีของฉัน" ฝั่งลูกค้า - แก้ไขข้อมูลส่วนตัว + เปลี่ยนรหัสผ่าน %>
+<% const nameParts = (customer.full_name || '').trim().split(/\s+/); %>
+<% const firstNameValue = formValues ? formValues.first_name : (nameParts[0] || ''); %>
+<% const lastNameValue = formValues ? formValues.last_name : (nameParts.slice(1).join(' ') || ''); %>
+<% const phoneValue = formValues ? formValues.phone : formatPhone(customer.phone); %>
+
+<div class="max-w-xl mx-auto px-4 py-10">
+  <h1 class="page-title mb-6"><%= t('บัญชีของฉัน') %></h1>
+
+  <% if (error) { %><div class="alert-error mb-4"><%= t(error) %></div><% } %>
+  <% if (success) { %><div class="alert-info mb-4"><%= t(success) %></div><% } %>
+
+  <form method="POST" action="/account" class="card p-6 space-y-4 mb-6">
+    <h2 class="section-title mb-1"><%= t('ข้อมูลส่วนตัว') %></h2>
+    <div class="grid grid-cols-2 gap-3">
+      <div>
+        <label class="field-label"><%= t('ชื่อ') %></label>
+        <input name="first_name" value="<%= firstNameValue %>" placeholder="<%= lang === 'en' ? 'John' : 'สมชาย' %>" class="input <%= errorField === 'first_name' ? 'input-error' : '' %>" required />
+      </div>
+      <div>
+        <label class="field-label"><%= t('นามสกุล') %></label>
+        <input name="last_name" value="<%= lastNameValue %>" placeholder="<%= lang === 'en' ? 'Doe' : 'ใจดี' %>" class="input <%= errorField === 'last_name' ? 'input-error' : '' %>" required />
+      </div>
+    </div>
+    <div>
+      <label class="field-label"><%= t('อีเมล') %></label>
+      <input value="<%= customer.email %>" class="input bg-gray-50 text-gray-500" disabled />
+      <p class="text-xs text-gray-400 mt-1"><%= t('อีเมลใช้สำหรับเข้าสู่ระบบ เปลี่ยนแปลงไม่ได้') %></p>
+    </div>
+    <div>
+      <label class="field-label"><%= t('เบอร์โทร') %></label>
+      <input
+        name="phone"
+        value="<%= phoneValue %>"
+        type="tel"
+        inputmode="numeric"
+        placeholder="081-234-5678"
+        data-phone-input
+        class="input <%= errorField === 'phone' ? 'input-error' : '' %>"
+      />
+    </div>
+    <div>
+      <label class="field-label"><%= t('ที่อยู่จัดส่ง') %></label>
+      <textarea name="address" rows="3" class="input"><%= customer.address || '' %></textarea>
+      <p class="text-xs text-gray-400 mt-1"><%= t('ใช้เป็นที่อยู่เริ่มต้นตอนกดยืนยันการสั่งซื้อ') %></p>
+    </div>
+    <button class="btn-primary w-full"><%= t('บันทึกข้อมูล') %></button>
+  </form>
+
+  <form method="POST" action="/account/password" class="card p-6 space-y-4">
+    <h2 class="section-title mb-1"><%= t('เปลี่ยนรหัสผ่าน') %></h2>
+    <div>
+      <label class="field-label"><%= t('รหัสผ่านปัจจุบัน') %></label>
+      <input type="password" name="current_password" class="input <%= errorField === 'current_password' ? 'input-error' : '' %>" required />
+    </div>
+    <div class="grid grid-cols-2 gap-4">
+      <div>
+        <label class="field-label"><%= t('รหัสผ่านใหม่') %></label>
+        <input type="password" name="new_password" class="input <%= errorField === 'new_password' ? 'input-error' : '' %>" required />
+      </div>
+      <div>
+        <label class="field-label"><%= t('ยืนยันรหัสผ่านใหม่') %></label>
+        <input type="password" name="confirm_password" class="input <%= errorField === 'confirm_password' ? 'input-error' : '' %>" required />
+      </div>
+    </div>
+    <button class="btn-outline w-full"><%= t('เปลี่ยนรหัสผ่าน') %></button>
+  </form>
+</div>

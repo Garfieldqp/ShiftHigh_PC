@@ -1,0 +1,48 @@
+<%# หน้าคิวงานจัดสเปคคอมที่รอช่างรับ (ฝั่งช่าง) %>
+<div class="max-w-4xl mx-auto px-4 py-10">
+  <h1 class="page-title mb-8"><%= t('คิวงานประกอบ') %></h1>
+
+  <h2 class="section-title mb-3"><%= t('รอช่างรับงาน') %></h2>
+  <% if (builds.length === 0) { %>
+    <div class="card empty-state mb-10 py-10">
+      <p><%= t('ไม่มีงานรอในคิว') %></p>
+    </div>
+  <% } else { %>
+    <div class="card divide-y divide-gray-100 mb-10">
+      <% builds.forEach(function(b) { %>
+        <a href="/technician/builds/<%= b.build_id %>" class="flex items-center justify-between gap-3 p-4 sm:p-5 hover:bg-gray-50 transition-colors">
+          <div class="min-w-0">
+            <div class="control-label mb-1"><%= t('ชื่อชุดจัดสเปค') %></div>
+            <div class="flex items-center gap-2 flex-wrap">
+              <span class="id-tag">#<%= b.build_id %></span>
+              <span class="font-medium text-gray-900 truncate"><%= b.build_name %></span>
+            </div>
+          </div>
+          <span class="text-brand-600 font-bold shrink-0"><%= b.total_price.toLocaleString() %> <%= t('บาท') %></span>
+        </a>
+      <% }); %>
+    </div>
+  <% } %>
+
+  <h2 class="section-title mb-3"><%= t('งานของฉัน (ประวัติที่เคยรับ)') %></h2>
+  <% if (myBuilds.length === 0) { %>
+    <div class="card empty-state py-10">
+      <p><%= t('ยังไม่เคยรับงานเลย') %></p>
+    </div>
+  <% } else { %>
+    <div class="card divide-y divide-gray-100">
+      <% myBuilds.forEach(function(b) { %>
+        <a href="/technician/builds/<%= b.build_id %>" class="flex items-center justify-between gap-3 p-4 sm:p-5 hover:bg-gray-50 transition-colors">
+          <div class="min-w-0">
+            <div class="control-label mb-1"><%= t('ชื่อชุดจัดสเปค') %></div>
+            <div class="flex items-center gap-2 flex-wrap">
+              <span class="id-tag">#<%= b.build_id %></span>
+              <span class="font-medium text-gray-900 truncate"><%= b.build_name %></span>
+            </div>
+          </div>
+          <span class="<%= statusColor(b.status) %> shrink-0"><%= t(statusLabel(b.status)) %></span>
+        </a>
+      <% }); %>
+    </div>
+  <% } %>
+</div>

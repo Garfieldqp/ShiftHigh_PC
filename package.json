@@ -1,0 +1,41 @@
+{
+  "name": "shift-high-pc",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Shift-High PC - เว็บแอปร้านคอมพิวเตอร์ (ขายสินค้าปกติ + จัดสเปคคอม)",
+  "scripts": {
+    "dev": "concurrently -k -n SERVER,CSS -c blue,green \"npm:dev:server\" \"npm:watch:css\"",
+    "dev:server": "ts-node-dev --respawn --transpile-only src/server.ts",
+    "watch:css": "tailwindcss -i ./src/styles/tailwind.css -o ./public/css/tailwind.css --watch",
+    "build:css": "tailwindcss -i ./src/styles/tailwind.css -o ./public/css/tailwind.css --minify",
+    "build": "npm run build:css && tsc",
+    "start": "node dist/server.js",
+    "test:db": "node -r ts-node/register/transpile-only scripts/itest.ts"
+  },
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+    "cookie-parser": "^1.4.6",
+    "dotenv": "^16.4.5",
+    "ejs": "^3.1.10",
+    "express": "^4.19.2",
+    "express-ejs-layouts": "^2.5.1",
+    "jsonwebtoken": "^9.0.2",
+    "mysql2": "^3.10.0"
+  },
+  "devDependencies": {
+    "@types/bcrypt": "^5.0.2",
+    "@types/cookie-parser": "^1.4.7",
+    "@types/express": "^4.17.21",
+    "@types/jsonwebtoken": "^9.0.6",
+    "@types/node": "^20.14.2",
+    "autoprefixer": "^10.4.19",
+    "concurrently": "^8.2.2",
+    "postcss": "^8.4.38",
+    "tailwindcss": "^3.4.4",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^5.4.5"
+  },
+  "allowScripts": {
+    "bcrypt@5.1.1": true
+  }
+}

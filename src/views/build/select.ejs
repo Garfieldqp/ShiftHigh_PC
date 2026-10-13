@@ -1,0 +1,47 @@
+<%# หน้า "จัดสเปคคอม" - เลือกอะไหล่ทีละหมวดหมู่ (dropdown) แล้วกดใส่ตะกร้าเป็นชุดเดียว %>
+<div class="max-w-3xl mx-auto px-4 py-10">
+  <h1 class="page-title mb-2"><%= t('จัดสเปคคอม') %></h1>
+  <p class="text-gray-500 mb-8"><%= t('เลือกอะไหล่ทีละหมวด แล้วกดใส่ตะกร้าเป็น "ชุด" ได้เลย ราคารวมคำนวณให้อัตโนมัติ') %></p>
+
+  <% if (error) { %>
+    <div class="alert-error mb-6"><%= t(error) %></div>
+  <% } %>
+
+  <% if (!customer) { %>
+    <div class="card empty-state py-14">
+      <p class="mb-4"><%= t('ต้องเข้าสู่ระบบก่อนจึงจะจัดสเปคคอมได้') %></p>
+      <a href="/auth/login" class="btn-primary"><%= t('เข้าสู่ระบบ') %></a>
+    </div>
+  <% } else { %>
+    <form method="POST" action="/build" class="space-y-4">
+      <div class="card p-5">
+        <label class="field-label"><%= t('ตั้งชื่อสเปคคอมของคุณ') %></label>
+        <input name="build_name" placeholder="<%= t('เช่น สายเกม, สายทำงาน, สายตัดต่อวิดีโอ') %>" class="input" />
+      </div>
+
+      <div class="card divide-y divide-gray-100">
+        <% productsByCategory.forEach(function(group, i) { %>
+          <div class="flex items-center gap-4 p-4 sm:p-5">
+            <div class="h-8 w-8 rounded-full bg-brand-50 text-brand-600 flex items-center justify-center text-sm font-semibold shrink-0">
+              <%= i + 1 %>
+            </div>
+            <div class="flex-1 min-w-0">
+              <label class="field-label mb-1"><%= t(group.category.category_name) %></label>
+              <select name="category_<%= group.category.category_id %>" class="select">
+                <option value="">- <%= t('ไม่เลือก') %> -</option>
+                <% group.products.forEach(function(p) { %>
+                  <option value="<%= p.product_id %>"><%= p.product_name %> - <%= p.price.toLocaleString() %> <%= t('บาท') %></option>
+                <% }); %>
+              </select>
+            </div>
+          </div>
+        <% }); %>
+      </div>
+
+      <button class="btn-primary w-full">
+        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l3-8H5.4M7 13L5.4 5M7 13l-2.3 4.6A1 1 0 005.6 19H17M9 21a1 1 0 100-2 1 1 0 000 2zm8 0a1 1 0 100-2 1 1 0 000 2z" /></svg>
+        <%= t('ใส่ตะกร้า') %>
+      </button>
+    </form>
+  <% } %>
+</div>

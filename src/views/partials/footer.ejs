@@ -1,0 +1,53 @@
+<%# ส่วน footer ท้ายเว็บ ใช้ร่วมกันทุกหน้า %>
+<footer class="mt-20 bg-carbon text-gray-400">
+  <div class="w-full px-4 sm:px-8 lg:px-12 py-14 grid gap-10 sm:grid-cols-2 lg:grid-cols-[2fr_1fr_1fr]">
+    <div class="sm:col-span-2 lg:col-span-1">
+      <a href="/" class="flex items-center gap-2.5 mb-3 w-fit group">
+        <img src="/images/logo.jpg" alt="Shift-High PC" class="h-11 w-11 rounded-xl object-cover ring-1 ring-white/10 transition-transform group-hover:scale-105" />
+        <span class="font-display text-[15px] font-medium tracking-[0.14em] text-white">SHIFT-HIGH <span class="text-brand-500">PC</span></span>
+      </a>
+      <p class="text-sm text-gray-400 max-w-xs leading-relaxed">need pc trust shift-high pc</p>
+    </div>
+
+    <div class="lg:justify-self-end">
+      <h3 class="font-display text-sm font-medium text-white mb-3.5"><%= t('เมนูลัด') %></h3>
+      <ul class="space-y-2.5 text-sm">
+        <li><a href="/products" class="hover:text-white transition-colors"><%= t('สินค้า') %></a></li>
+        <li><a href="/build" class="hover:text-white transition-colors"><%= t('จัดสเปคคอม') %></a></li>
+        <% if (customer) { %>
+          <li><a href="/cart" class="hover:text-white transition-colors"><%= t('ตะกร้า') %></a></li>
+          <li><a href="/orders" class="hover:text-white transition-colors"><%= t('คำสั่งซื้อ') %></a></li>
+        <% } else if (!employee) { %>
+          <li><a href="/auth/login" class="hover:text-white transition-colors"><%= t('เข้าสู่ระบบ') %></a></li>
+          <li><a href="/auth/register" class="hover:text-white transition-colors"><%= t('สมัครสมาชิก') %></a></li>
+        <% } %>
+      </ul>
+    </div>
+
+    <div class="lg:justify-self-end">
+      <h3 class="font-display text-sm font-medium text-white mb-3.5"><%= t('ติดต่อเรา') %></h3>
+      <!-- ข้อมูลติดต่อร้าน - ยังไม่มีข้อมูลจริง ใช้ placeholder รูปแบบเบอร์ที่ถูกต้องไปก่อน (ดูรีวิวสถานะนี้ตอนมีข้อมูลร้านจริง) -->
+      <ul class="space-y-2.5 text-sm">
+        <li class="flex items-center gap-2.5">
+          <svg class="w-4 h-4 text-brand-500 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="7" y="2" width="10" height="20" rx="2" /><circle cx="12" cy="18" r="1" fill="currentColor" stroke="none" /></svg>
+          <span>02-XXX-XXXX</span>
+        </li>
+        <li class="flex items-center gap-2.5">
+          <svg class="w-4 h-4 text-brand-500 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4h16a1 1 0 011 1v10a1 1 0 01-1 1H9l-4 4v-4H4a1 1 0 01-1-1V5a1 1 0 011-1z" /></svg>
+          <span>@shift-high-pc</span>
+        </li>
+        <li class="flex items-center gap-2.5">
+          <svg class="w-4 h-4 text-brand-500 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="14" rx="2" /><path stroke-linecap="round" stroke-linejoin="round" d="M3 7l9 6 9-6" /></svg>
+          <span class="break-all">contact@shift-high-pc.example</span>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="border-t border-white/10">
+    <div class="w-full px-4 sm:px-8 lg:px-12 py-5 text-xs text-gray-500 flex flex-wrap items-center justify-between gap-2">
+      <span>&copy; <%= new Date().getFullYear() %> Shift-High PC</span>
+      <a href="/staff/auth/login" class="hover:text-gray-300 transition-colors"><%= t('เข้าสู่ระบบพนักงาน') %></a>
+    </div>
+  </div>
+</footer>
