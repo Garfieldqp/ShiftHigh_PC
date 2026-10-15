@@ -1,6 +1,7 @@
 <%# หน้า checkout - กรอกที่อยู่จัดส่ง + เลือกวิธีชำระเงิน ก่อนกดยืนยันสั่งซื้อ %>
 <div class="max-w-xl mx-auto px-4 py-10">
-  <h1 class="page-title mb-6"><%= t('ชำระเงิน') %></h1>
+  <p class="alert-error mb-4"><%= t('ระบบสาธิต: การชำระเงินเป็นการจำลอง ไม่มีการเรียกเก็บเงินจริง') %></p>
+<h1 class="page-title mb-6"><%= t('ชำระเงิน') %></h1>
 
   <% if (error) { %>
     <div class="alert-error mb-4"><%= t(error) %></div>
