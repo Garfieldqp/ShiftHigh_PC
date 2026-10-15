@@ -2,11 +2,13 @@ import { EmployeeRole } from '../models/Employee';
 
 // ข้อมูลที่ฝังอยู่ใน JWT token ตอน login สำเร็จ (ไม่ใช่ entity เต็ม แค่พอให้ middleware/currentUser.ts รู้ว่าเป็นใคร)
 export interface CustomerJwtPayload {
+  session_id?: string;
   customer_id: number;
   email: string;
 }
 
 export interface EmployeeJwtPayload {
+  session_id?: string;
   employee_id: number;
   email: string;
   role: EmployeeRole;
