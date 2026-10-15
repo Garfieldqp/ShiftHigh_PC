@@ -25,7 +25,7 @@
             <%- include('../partials/product-thumb', { categoryName: categoryName(p.category_id), imageUrl: p.image_url, size: 'sm', isBuild: false }) %>
             <div class="min-w-0">
               <div class="font-medium text-gray-900 truncate"><%= p.product_name %></div>
-              <div class="text-sm text-gray-500"><%= t('คงเหลือ') %>: <span class="font-medium text-gray-700"><%= p.stock_quantity %></span> <%= t('ชิ้น') %></div>
+              <div class="text-sm text-gray-500"><%= t('คงเหลือ') %>: <span class="font-medium text-gray-700"><%= p.stock_quantity %></span> (<%= t('พร้อมขาย') %>) · <%= t('จองประกอบ') %>: <%= p.reserved_quantity %> <%= t('ชิ้น') %></div>
             </div>
           </div>
           <form method="POST" action="/staff/stock/adjust" class="flex items-center gap-2 stock-adjust-form flex-wrap">

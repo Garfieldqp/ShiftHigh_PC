@@ -43,7 +43,7 @@
               <div class="status-slot">
                 <div class="control-label"><%= t('การจัดส่ง') %></div>
                 <form method="POST" action="/staff/orders/<%= o.order_id %>/shipping" class="flex items-center gap-1.5 <%= o.status !== 'paid' ? 'opacity-40 pointer-events-none' : '' %>">
-                  <select name="shipping_status" class="select-sm w-32" title="<%= o.status !== 'paid' ? t('รอชำระเงินก่อน') : '' %>" <%= o.status !== 'paid' ? 'disabled' : '' %>>
+                  <input name="courier_name" maxlength="100" class="input" placeholder="<%= t('บริษัทขนส่ง') %>" value="<%= o.shipment ? o.shipment.courier_name : '' %>" /><input name="tracking_number" maxlength="100" class="input" placeholder="<%= t('เลขพัสดุ') %>" value="<%= o.shipment ? (o.shipment.tracking_number || '') : '' %>" /><select name="shipping_status" class="select-sm w-32" title="<%= o.status !== 'paid' ? t('รอชำระเงินก่อน') : '' %>" <%= o.status !== 'paid' ? 'disabled' : '' %>>
                     <% if (o.status !== 'paid') { %>
                       <option><%= t('รอชำระเงินก่อน') %></option>
                     <% } else { %>
@@ -110,7 +110,7 @@
                 <!-- ช่างต้องประกอบเสร็จ (completed) ก่อน ถึงจะอัปเดตสถานะจัดส่งต่อได้ -->
                 <form method="POST" action="/staff/builds/<%= b.build_id %>/status" class="flex items-center gap-1.5 <%= !canShip ? 'opacity-40 pointer-events-none' : '' %>">
                   <% var canShipPlaceholder = b.status === 'delivered' ? t('จัดส่งถึงแล้ว') : b.status === 'cancelled' ? t('งานถูกยกเลิก') : t('รอช่างประกอบเสร็จ'); %>
-                  <select name="status" class="select-sm w-32" title="<%= !canShip ? canShipPlaceholder : '' %>" <%= !canShip ? 'disabled' : '' %>>
+                  <input name="courier_name" maxlength="100" class="input" placeholder="<%= t('บริษัทขนส่ง') %>" value="<%= b.shipment ? b.shipment.courier_name : '' %>" /><input name="tracking_number" maxlength="100" class="input" placeholder="<%= t('เลขพัสดุ') %>" value="<%= b.shipment ? (b.shipment.tracking_number || '') : '' %>" /><select name="status" class="select-sm w-32" title="<%= !canShip ? canShipPlaceholder : '' %>" <%= !canShip ? 'disabled' : '' %>>
                     <% if (!canShip) { %>
                       <option><%= canShipPlaceholder %></option>
                     <% } else { %>
