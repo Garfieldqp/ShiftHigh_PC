@@ -23,6 +23,7 @@
       </div>
     </div>
 
+    <% if (shipment && shipment.tracking_number) { %><p><%= t('บริษัทขนส่ง') %>: <%= shipment.courier_name %> · <%= t('เลขพัสดุ') %>: <%= shipment.tracking_number %></p><% } %>
     <h2 class="section-title mb-3 mt-8"><%= t('ประวัติสถานะ') %></h2>
     <div class="card p-5">
       <ol class="relative border-l-2 border-brand-100 pl-5 space-y-5">
