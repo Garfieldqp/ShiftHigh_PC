@@ -1,3 +1,4 @@
+import { translate } from './i18n';
 import { Request, Response, NextFunction } from 'express';
 
 // ตัวจับ error กลางของทั้งแอป (mount เป็นตัวสุดท้ายใน app.ts) - error ที่ throw จาก controller/service ไหนก็ตาม
@@ -9,11 +10,13 @@ export function errorHandler(err: any, req: Request, res: Response, next: NextFu
   const status = err.status || 500;
   res.status(status);
 
+  const lang = req.cookies?.lang === 'en' ? 'en' : 'th';
+  const message = translate(err.message || 'เกิดข้อผิดพลาดภายในระบบ', lang);
   if (req.headers.accept?.includes('application/json')) {
-    res.json({ error: err.message || 'Internal Server Error' });
+    res.json({ error: message });
     return;
   }
 
   const isEn = req.cookies?.lang === 'en';
-  res.send(`<h1>${status} - ${isEn ? 'An error occurred' : 'เกิดข้อผิดพลาด'}</h1><p>${err.message || ''}</p>`);
+  res.send(`<h1>${status} - ${isEn ? 'An error occurred' : 'เกิดข้อผิดพลาด'}</h1><p>${message.replace(/[&<>"']/g, (char: string) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]!))}</p>`);
 }

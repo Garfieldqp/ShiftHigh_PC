@@ -1,3 +1,4 @@
+import { activeSession } from '../utils/session';
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import { verifyAccessToken, verifyRefreshToken, signAccessToken, parseExpiryToMs } from '../utils/jwt';
@@ -75,7 +76,7 @@ async function resolveCustomer(req: Request, res: Response) {
     ? null
     : safeVerify((t) => verifyRefreshToken<CustomerJwtPayload>(t), req.cookies?.[CUSTOMER_REFRESH_COOKIE]);
   const payload = access ?? refresh;
-  if (!payload) {
+  if (!payload || !activeSession(req, payload.session_id, 'customer', payload.customer_id)) {
     // มี cookie แต่ใช้ไม่ได้แล้วทั้งคู่ - เคลียร์ทิ้ง
     if (req.cookies?.[CUSTOMER_ACCESS_COOKIE] || req.cookies?.[CUSTOMER_REFRESH_COOKIE]) {
       res.clearCookie(CUSTOMER_ACCESS_COOKIE);
@@ -94,7 +95,7 @@ async function resolveCustomer(req: Request, res: Response) {
     res.clearCookie(CUSTOMER_REFRESH_COOKIE);
     return;
   }
-  req.customer = { customer_id: customer.customer_id, email: customer.email };
+  req.customer = { session_id: payload.session_id, customer_id: customer.customer_id, email: customer.email };
   if (refresh) {
     res.cookie(CUSTOMER_ACCESS_COOKIE, signAccessToken(req.customer), cookieOptions(parseExpiryToMs(env.jwt.accessExpiresIn)));
   }
@@ -106,7 +107,7 @@ async function resolveEmployee(req: Request, res: Response) {
     ? null
     : safeVerify((t) => verifyRefreshToken<EmployeeJwtPayload>(t), req.cookies?.[EMPLOYEE_REFRESH_COOKIE]);
   const payload = access ?? refresh;
-  if (!payload) {
+  if (!payload || !activeSession(req, payload.session_id, 'employee', payload.employee_id)) {
     if (req.cookies?.[EMPLOYEE_ACCESS_COOKIE] || req.cookies?.[EMPLOYEE_REFRESH_COOKIE]) {
       res.clearCookie(EMPLOYEE_ACCESS_COOKIE);
       res.clearCookie(EMPLOYEE_REFRESH_COOKIE);
@@ -124,11 +125,11 @@ async function resolveEmployee(req: Request, res: Response) {
     res.clearCookie(EMPLOYEE_REFRESH_COOKIE);
     return;
   }
-  req.employee = { employee_id: emp.employee_id, email: emp.email, role: emp.role };
+  req.employee = { session_id: payload.session_id, employee_id: emp.employee_id, email: emp.email, role: emp.role };
   if (refresh) {
     res.cookie(
       EMPLOYEE_ACCESS_COOKIE,
-      signAccessToken({ employee_id: emp.employee_id, email: emp.email, role: emp.role }),
+      signAccessToken({ session_id: payload.session_id, employee_id: emp.employee_id, email: emp.email, role: emp.role }),
       cookieOptions(parseExpiryToMs(env.jwt.accessExpiresIn))
     );
   }
