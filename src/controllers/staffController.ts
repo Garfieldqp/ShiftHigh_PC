@@ -39,7 +39,7 @@ export async function updateOrderShipping(req: Request, res: Response) {
   }
 
   try {
-    await shipmentService.setOrderShippingStatus(orderId, employeeId, shippingStatus);
+    await shipmentService.setOrderShippingStatus(orderId, employeeId, shippingStatus, { courier_name: String(req.body.courier_name || ''), tracking_number: String(req.body.tracking_number || '') });
   } catch (err: any) {
     console.error('updateOrderShipping:', err.message);
   }
@@ -47,7 +47,7 @@ export async function updateOrderShipping(req: Request, res: Response) {
 }
 
 export async function showStock(req: Request, res: Response) {
-  const products = await productService.listProducts();
+  const products = await stockService.listStockWithReservations();
   res.render('staff/stock', { title: 'จัดการสต็อก', products });
 }
 
@@ -79,7 +79,7 @@ export async function updateBuildStatus(req: Request, res: Response) {
   }
 
   try {
-    await buildService.updateBuildStatus(buildId, employeeId, nextStatus, req.body.note);
+    await buildService.updateBuildStatus(buildId, employeeId, nextStatus, req.body.note, { courier_name: String(req.body.courier_name || ''), tracking_number: String(req.body.tracking_number || '') });
   } catch (err: any) {
     console.error('staff updateBuildStatus:', err.message);
   }

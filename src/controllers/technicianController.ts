@@ -11,6 +11,7 @@ export async function showQueue(req: Request, res: Response) {
 
 export async function showBuildDetail(req: Request, res: Response) {
   const build = await buildService.getBuildById(Number(req.params.id));
+  if (!build || (build.assigned_technician_id !== req.employee!.employee_id && build.status !== 'paid')) return res.status(404).send(res.locals.t('ไม่พบข้อมูล'));
   const items = build ? await buildService.getBuildItems(build.build_id) : [];
   const history = build ? await buildService.getBuildHistory(build.build_id) : [];
   const customer = build ? await buildService.getBuildCustomerContact(build.build_id) : null;

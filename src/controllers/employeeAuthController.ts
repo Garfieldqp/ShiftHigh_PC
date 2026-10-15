@@ -1,3 +1,4 @@
+import { startSession, endSession } from '../utils/session';
 import { Request, Response } from 'express';
 import * as employeeAuthService from '../services/employeeAuthService';
 import { signAccessToken, signRefreshToken, parseExpiryToMs } from '../utils/jwt';
@@ -47,7 +48,8 @@ export async function login(req: Request, res: Response) {
   const { email, password } = req.body;
   try {
     const employee = await employeeAuthService.loginEmployee(email, password);
-    const payload = { employee_id: employee.employee_id, email: employee.email, role: employee.role };
+    const session_id = startSession(req, res, 'employee', employee.employee_id);
+    const payload = { session_id, employee_id: employee.employee_id, email: employee.email, role: employee.role };
     // login ได้ทีละบัญชีเท่านั้น: ถ้ามีลูกค้า login ค้างอยู่ในเบราว์เซอร์นี้ ให้ออกจากระบบลูกค้าก่อน
     res.clearCookie(CUSTOMER_ACCESS_COOKIE);
     res.clearCookie(CUSTOMER_REFRESH_COOKIE);
@@ -72,6 +74,11 @@ export async function login(req: Request, res: Response) {
 }
 
 export function logout(req: Request, res: Response) {
+  endSession(req, res);
+  res.clearCookie(CUSTOMER_ACCESS_COOKIE);
+  res.clearCookie(CUSTOMER_REFRESH_COOKIE);
+  res.clearCookie(EMPLOYEE_ACCESS_COOKIE);
+  res.clearCookie(EMPLOYEE_REFRESH_COOKIE);
   res.clearCookie(EMPLOYEE_ACCESS_COOKIE);
   res.clearCookie(EMPLOYEE_REFRESH_COOKIE);
   res.redirect('/');

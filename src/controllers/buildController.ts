@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import * as productService from '../services/productService';
 import * as buildService from '../services/buildService';
 import * as cartService from '../services/cartService';
+import * as shipmentService from '../services/shipmentService';
 import * as customerService from '../services/customerService';
 
 // หน้า "จัดสเปคคอม" ฝั่งลูกค้า - เลือกอะไหล่ทีละหมวดแล้วกดใส่ตะกร้าเป็นชุดเดียว
@@ -32,7 +33,12 @@ export async function saveBuildToCart(req: Request, res: Response) {
   const items: { product_id: number; quantity: number }[] = [];
   for (const c of categories) {
     const value = req.body[`category_${c.category_id}`];
-    if (value) items.push({ product_id: Number(value), quantity: 1 });
+    if (value) {
+      const quantity = 1;
+      const products = await productService.listProducts({ category_id: c.category_id });
+      if (!Number.isSafeInteger(quantity) || quantity < 1 || !products.some(p => p.product_id === Number(value))) return res.status(400).send(res.locals.t('ข้อมูลอะไหล่หรือจำนวนไม่ถูกต้อง'));
+      items.push({ product_id: Number(value), quantity });
+    }
   }
 
   try {
@@ -47,7 +53,9 @@ export async function saveBuildToCart(req: Request, res: Response) {
 
 export async function showBuildStatus(req: Request, res: Response) {
   const build = await buildService.getBuildById(Number(req.params.id));
-  const items = build ? await buildService.getBuildItems(build.build_id) : [];
+  if (!build || build.customer_id !== req.customer!.customer_id) return res.status(404).send(res.locals.t('ไม่พบข้อมูล'));
+  const shipment = await shipmentService.getShipmentForBuild(build.build_id);
+  const items = await buildService.getBuildItems(build.build_id);
   const history = build ? await buildService.getBuildHistory(build.build_id) : [];
-  res.render('build/status', { title: 'สถานะงานประกอบ', build, items, history });
+  res.render('build/status', { title: 'สถานะงานประกอบ', build, items, history, shipment });
 }

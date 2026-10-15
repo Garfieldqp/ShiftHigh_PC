@@ -17,7 +17,7 @@ export async function listOrders(req: Request, res: Response) {
         orderService.getOrderItems(order.order_id),
         shipmentService.getShipmentForOrder(order.order_id),
       ]);
-      return { ...order, items, history: orderService.buildOrderStatusHistory(order, shipment) };
+      return { ...order, items, shipment, history: orderService.buildOrderStatusHistory(order, shipment) };
     })
   );
 
@@ -26,7 +26,8 @@ export async function listOrders(req: Request, res: Response) {
 
 export async function orderConfirmation(req: Request, res: Response) {
   const order = await orderService.getOrderById(Number(req.params.id));
-  const items = order ? await orderService.getOrderItems(order.order_id) : [];
+  if (!order || order.customer_id !== req.customer!.customer_id) return res.status(404).send(res.locals.t('ไม่พบข้อมูล'));
+  const items = await orderService.getOrderItems(order.order_id);
   const shipment = order ? await shipmentService.getShipmentForOrder(order.order_id) : null;
   const history = order ? orderService.buildOrderStatusHistory(order, shipment) : [];
   const paymentMethod = order ? await orderService.getPaymentMethodForOrder(order.order_id) : null;
