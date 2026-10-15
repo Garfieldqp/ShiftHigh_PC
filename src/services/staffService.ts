@@ -16,8 +16,8 @@ export interface StaffOrderItemView {
 export interface StaffOrderView extends SalesOrder {
   customer_name: string;
   customer_phone?: string;
-  items: StaffOrderItemView[];
   shipment: Shipment | null;
+  items: StaffOrderItemView[];
   history: OrderStatusHistoryEntry[];
 }
 
@@ -73,6 +73,7 @@ export async function listAllOrders(): Promise<StaffOrderView[]> {
 export interface StaffBuildView extends PCBuild {
   customer_name: string;
   customer_phone?: string;
+  shipment: Shipment | null;
   items: StaffOrderItemView[];
   history: OrderStatusHistoryEntry[];
 }
@@ -102,7 +103,9 @@ export async function listAllBuilds(): Promise<StaffBuildView[]> {
     (r) => r.build_id
   );
 
+  const buildShipments = new Map((await query<Shipment>('SELECT * FROM shipment WHERE build_id IS NOT NULL')).map(s => [s.build_id!, s]));
   return builds.map((build) => ({
+    shipment: buildShipments.get(build.build_id) ?? null,
     ...build,
     customer_name: build.customer_name ?? 'ไม่พบลูกค้า',
     customer_phone: build.customer_phone ?? undefined,

@@ -36,7 +36,10 @@ export async function createDraftBuild(
 ): Promise<PCBuild> {
   // รวมสินค้าซ้ำเป็นแถวเดียว เพราะ build_item ใช้ (build_id, product_id) เป็น composite key
   const merged = new Map<number, number>();
-  rawItems.forEach((i) => merged.set(i.product_id, (merged.get(i.product_id) ?? 0) + i.quantity));
+  rawItems.forEach((i) => {
+    if (!Number.isSafeInteger(i.quantity) || i.quantity < 1) throw new Error('Invalid quantity');
+    merged.set(i.product_id, (merged.get(i.product_id) ?? 0) + i.quantity);
+  });
   const items = [...merged].map(([product_id, quantity]) => ({ product_id, quantity }));
 
   if (items.length === 0) {
@@ -45,7 +48,7 @@ export async function createDraftBuild(
 
   const buildId = await withTransaction(async (conn) => {
     const rows = await query<Product>(
-      'SELECT product_id, price FROM product WHERE product_id IN (?)',
+      'SELECT product_id, price FROM product WHERE product_id IN (?) AND is_active = TRUE',
       [items.map((i) => i.product_id)],
       conn
     );
@@ -158,11 +161,27 @@ export async function updateBuildStatus(
   buildId: number,
   employeeId: number,
   status: PCBuildStatus,
-  note?: string
+  note?: string,
+  shipping?: { courier_name: string; tracking_number: string }
 ): Promise<void> {
   await withTransaction(async (conn) => {
     const build = await queryOne<PCBuild>('SELECT * FROM pc_build WHERE build_id = ?', [buildId], conn);
     if (!build) throw new Error('ไม่พบงานนี้');
+
+    const actor = await queryOne<{role: string; is_active: boolean}>('SELECT role, is_active FROM employee WHERE employee_id = ?', [employeeId], conn);
+    if (!actor?.is_active) throw new Error('Access denied');
+    const technicianAction = ['assembling', 'completed', 'cancelled'].includes(status);
+    if (status === 'cancelled' && build.status === 'draft' && ['staff', 'admin'].includes(actor.role)) {
+      // Staff may discard an unpaid draft; no stock was reserved.
+    } else if (technicianAction) {
+      if (actor.role !== 'technician' || build.assigned_technician_id !== employeeId) throw new Error('Access denied');
+      const allowed = status === 'assembling' ? ['assigned'] : status === 'completed' ? ['assembling'] : ['assigned', 'assembling', 'completed'];
+      if (!allowed.includes(build.status)) throw new Error('Invalid status transition');
+    } else if (!['staff', 'admin'].includes(actor.role) || !((status === 'shipped' && build.status === 'completed') || (status === 'delivered' && build.status === 'shipped'))) {
+      throw new Error('Invalid status transition');
+    }
+    const changed = await execute('UPDATE pc_build SET status = ? WHERE build_id = ? AND status = ?', [status, buildId, build.status], conn);
+    if (changed.affectedRows !== 1) throw new Error('Build changed; reload and retry');
 
     // ยกเลิกงานที่จ่ายเงินแล้วแต่ยังไม่ส่งออก (ช่างกับลูกค้าตกลงกันว่าประกอบไม่ได้จริงๆ)
     // ต้องคืนสต็อกอะไหล่ที่หักไปตอน checkout กลับเข้าคลัง
@@ -178,7 +197,7 @@ export async function updateBuildStatus(
     }
 
     // เปลี่ยนสถานะปัจจุบัน + เขียนประวัติ 1 แถว ใน transaction เดียวกันเสมอ ทั้งสองจึงตรงกันตลอด
-    await execute('UPDATE pc_build SET status = ? WHERE build_id = ?', [status, buildId], conn);
+    // Status was changed atomically above, before returning stock.
     await execute(
       'INSERT INTO build_status_history (build_id, employee_id, status, updated_at, note) VALUES (?, ?, ?, ?, ?)',
       [buildId, employeeId, status, new Date(), note ?? null],
@@ -187,7 +206,7 @@ export async function updateBuildStatus(
 
     // งานจัดสเปคมี shipment ของตัวเองได้ 1 รายการ สร้าง/อัปเดตตอนสถานะเปลี่ยนเป็นจัดส่ง (BR17)
     if (status === 'shipped' || status === 'delivered') {
-      await shipmentService.setBuildShippingStatus(buildId, employeeId, status, conn);
+      await shipmentService.setBuildShippingStatus(buildId, employeeId, status, conn, shipping);
     }
   });
 }

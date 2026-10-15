@@ -19,18 +19,25 @@ async function upsertShipment(
   link: { order_id: number | null; build_id: number | null },
   employeeId: number,
   shippingStatus: string,
-  db: Db
+  db: Db,
+  shipping?: { courier_name: string; tracking_number: string }
 ): Promise<void> {
   const column = link.order_id !== null ? 'order_id' : 'build_id';
   const id = link.order_id ?? link.build_id;
+  const parentTable = link.order_id !== null ? 'sales_order' : 'pc_build';
+  // Serialize shipment creation using the parent row, without changing the schema.
+  await execute(`UPDATE ${parentTable} SET ${column} = ${column} WHERE ${column} = ?`, [id], db);
   const existing = await queryOne<Shipment>(`SELECT * FROM shipment WHERE ${column} = ?`, [id], db);
+  if (!['preparing', 'shipped', 'delivered'].includes(shippingStatus)) throw new Error('Invalid shipping status');
+  if (existing && (existing.shipping_status === 'delivered' && shippingStatus !== 'delivered' || existing.shipping_status === 'shipped' && shippingStatus === 'preparing')) throw new Error('Invalid shipping transition');
+  if (shipping && (shipping.courier_name.length > 100 || shipping.tracking_number.length > 100)) throw new Error('Shipping details too long');
   const now = new Date();
 
   if (!existing) {
     await execute(
       `INSERT INTO shipment (order_id, build_id, employee_id, courier_name, tracking_number, shipped_date, delivered_date, shipping_status)
        VALUES (?, ?, ?, '-', NULL, ?, ?, ?)`,
-      [link.order_id, link.build_id, employeeId, now, shippingStatus === 'delivered' ? now : null, shippingStatus],
+      [link.order_id, link.build_id, employeeId, shippingStatus === 'preparing' ? null : now, shippingStatus === 'delivered' ? now : null, shippingStatus],
       db
     );
   } else if (shippingStatus === 'delivered') {
@@ -40,20 +47,25 @@ async function upsertShipment(
       db
     );
   } else {
-    await execute('UPDATE shipment SET shipping_status = ? WHERE shipment_id = ?', [shippingStatus, existing.shipment_id], db);
+    await execute('UPDATE shipment SET shipping_status = ?, shipped_date = COALESCE(shipped_date, ?) WHERE shipment_id = ?', [shippingStatus, shippingStatus === 'shipped' ? now : null, existing.shipment_id], db);
+  }
+  if (shipping) {
+    await execute(`UPDATE shipment SET courier_name = ?, tracking_number = ? WHERE ${column} = ?`,
+      [shipping.courier_name.trim() || '-', shipping.tracking_number.trim() || null, id], db);
   }
 }
 
 // เรียกจาก staff เท่านั้น (ดู staffController.updateOrderShipping) - สร้าง shipment ให้ order นี้ถ้ายังไม่มี
 // แล้วอัปเดตสถานะจัดส่ง (แยกจาก sales_order.status เพราะเอกสารออกแบบตั้งใจแยก Shipment ออกมาต่างหาก)
-// เก็บแค่ 3 สถานะ: เตรียมจัดส่ง / กำลังจัดส่ง / ถึงแล้ว - ไม่ถามบริษัทขนส่ง/เลขพัสดุ (ไม่จำเป็นสำหรับ scope ตอนนี้)
+// เก็บสถานะและข้อมูลบริษัทขนส่ง/เลขพัสดุ โดยใช้คอลัมน์เดิมของ ERD
 export async function setOrderShippingStatus(
   orderId: number,
   employeeId: number,
-  shippingStatus: string
+  shippingStatus: string,
+  shipping?: { courier_name: string; tracking_number: string }
 ): Promise<void> {
   assertExactlyOneLink(orderId, null, 'Shipment (สินค้าปกติ)');
-  await withTransaction((conn) => upsertShipment({ order_id: orderId, build_id: null }, employeeId, shippingStatus, conn));
+  await withTransaction((conn) => upsertShipment({ order_id: orderId, build_id: null }, employeeId, shippingStatus, conn, shipping));
 }
 
 // เรียกจาก buildService.updateBuildStatus ตอนสถานะงานเปลี่ยนเป็น shipped/delivered
@@ -62,12 +74,13 @@ export async function setBuildShippingStatus(
   buildId: number,
   employeeId: number,
   shippingStatus: string,
-  db?: Db
+  db?: Db,
+  shipping?: { courier_name: string; tracking_number: string }
 ): Promise<void> {
   assertExactlyOneLink(null, buildId, 'Shipment (จัดสเปคคอม)');
   if (db) {
-    await upsertShipment({ order_id: null, build_id: buildId }, employeeId, shippingStatus, db);
+    await upsertShipment({ order_id: null, build_id: buildId }, employeeId, shippingStatus, db, shipping);
   } else {
-    await withTransaction((conn) => upsertShipment({ order_id: null, build_id: buildId }, employeeId, shippingStatus, conn));
+    await withTransaction((conn) => upsertShipment({ order_id: null, build_id: buildId }, employeeId, shippingStatus, conn, shipping));
   }
 }
