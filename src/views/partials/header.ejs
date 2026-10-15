@@ -63,7 +63,7 @@
 
       <span class="mx-0.5 h-5 w-px bg-white/15"></span>
 
-      <div class="flex items-center rounded-full border border-white/20 p-0.5 text-xs shrink-0" role="group" aria-label="Language / ภาษา">
+      <div class="flex items-center rounded-full border border-white/20 p-0.5 text-xs shrink-0" role="group" aria-label="<%= lang === 'en' ? 'Language' : 'ภาษา' %>">
         <a href="/lang/th" class="px-2 py-1 rounded-full transition-colors <%= lang === 'th' ? 'bg-brand-500 text-carbon font-semibold' : 'text-gray-400 hover:text-white' %>">TH</a>
         <a href="/lang/en" class="px-2 py-1 rounded-full transition-colors <%= lang === 'en' ? 'bg-brand-500 text-carbon font-semibold' : 'text-gray-400 hover:text-white' %>">EN</a>
       </div>
@@ -126,7 +126,7 @@
 
         <div class="flex items-center gap-2 px-3 py-1.5">
           <span class="text-xs text-gray-400"><%= t('ภาษา') %></span>
-          <div class="flex items-center rounded-full border border-white/20 p-0.5 text-xs" role="group" aria-label="Language / ภาษา">
+          <div class="flex items-center rounded-full border border-white/20 p-0.5 text-xs" role="group" aria-label="<%= lang === 'en' ? 'Language' : 'ภาษา' %>">
             <a href="/lang/th" class="px-2.5 py-1 rounded-full transition-colors <%= lang === 'th' ? 'bg-brand-500 text-carbon font-semibold' : 'text-gray-400' %>">TH</a>
             <a href="/lang/en" class="px-2.5 py-1 rounded-full transition-colors <%= lang === 'en' ? 'bg-brand-500 text-carbon font-semibold' : 'text-gray-400' %>">EN</a>
           </div>
