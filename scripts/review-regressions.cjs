@@ -1,0 +1,21 @@
+const root=require('path').resolve(__dirname,'..');
+if (!/^pc_shop_review_/.test(process.env.DB_NAME || '')) throw new Error('Run only against an isolated pc_shop_review_ database');
+require(root+'/node_modules/ts-node').register({transpileOnly:true,project:root+'/tsconfig.json'});
+const {query,pool}=require(root+'/src/config/db');
+const builds=require(root+'/src/services/buildService');
+const shipping=require(root+'/src/services/shipmentService');
+const stock=require(root+'/src/services/stockService');
+const assert=require('assert/strict');
+(async()=>{try {
+ await assert.rejects(()=>builds.updateBuildStatus(1,2,'completed'),/Access denied/);
+ await assert.rejects(()=>builds.updateBuildStatus(3,3,'completed'),/Access denied|transition/);
+ const before=(await query('SELECT stock_quantity AS n FROM product WHERE product_id = 1'))[0].n;
+ const results=await Promise.allSettled([builds.updateBuildStatus(1,3,'cancelled'),builds.updateBuildStatus(1,3,'cancelled')]);
+ assert.equal(results.filter(r=>r.status==='fulfilled').length,1);
+ assert.equal((await query('SELECT stock_quantity AS n FROM product WHERE product_id=1'))[0].n,before+1);
+ const order=(await query("INSERT INTO sales_order(customer_id,order_date,status,total_amount,shipping_address) VALUES(1,CURRENT_TIMESTAMP,'paid',1,'test')"));
+ await Promise.all([shipping.setOrderShippingStatus(order.insertId,2,'shipped',{courier_name:'Test Courier',tracking_number:'TEST123'}),shipping.setOrderShippingStatus(order.insertId,2,'shipped',{courier_name:'Test Courier',tracking_number:'TEST123'})]);
+ const rows=await query('SELECT * FROM shipment WHERE order_id=?',[order.insertId]);assert.equal(rows.length,1);assert.equal(rows[0].tracking_number,'TEST123');
+ const inventory=await stock.listStockWithReservations();assert(inventory.every(p=>Number.isFinite(p.reserved_quantity)));
+ console.log('Regression checks passed: authorization, transitions, concurrent cancellation, single shipment, tracking, reserved stock.');
+ } finally {await pool.end();}})().catch(e=>{console.error(e);process.exitCode=1;});
