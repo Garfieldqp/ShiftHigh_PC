@@ -30,6 +30,7 @@
               </div>
             </div>
           </summary>
+          <% if (o.shipment && o.shipment.tracking_number) { %><p class="p-4"><%= t('บริษัทขนส่ง') %>: <%= o.shipment.courier_name %> · <%= t('เลขพัสดุ') %>: <%= o.shipment.tracking_number %></p><% } %>
           <%- include('../partials/order-detail-panel', {
             shippingAddress: o.shipping_address,
             itemsLabel: t('รายการสินค้า'),
